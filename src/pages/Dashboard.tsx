@@ -4,13 +4,15 @@ import {
   Code2,
   FileCode,
   FileSearch,
+  Loader2,
   MoreVertical,
   Plus,
   Search,
   Trash2,
   Upload,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,23 +22,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-
-interface Project {
-  id: string;
-  name: string;
-  language: string;
-  lastEdited: string;
-  size: string;
-}
-
-const mockProjects: Project[] = [
-  { id: "1", name: "hello_world.py", language: "Python", lastEdited: "2 hours ago", size: "1.2 KB" },
-  { id: "2", name: "api_server.js", language: "JavaScript", lastEdited: "1 day ago", size: "4.5 KB" },
-  { id: "3", name: "Main.java", language: "Java", lastEdited: "3 days ago", size: "2.8 KB" },
-  { id: "4", name: "algorithm.cpp", language: "C++", lastEdited: "1 week ago", size: "3.1 KB" },
-  { id: "5", name: "main.go", language: "Go", lastEdited: "2 weeks ago", size: "1.9 KB" },
-  { id: "6", name: "lib.rs", language: "Rust", lastEdited: "1 month ago", size: "5.2 KB" },
-];
+import { useAuth } from "@/hooks/useAuth";
+import { useUserFiles } from "@/hooks/useUserFiles";
+import { formatDistanceToNow } from "date-fns";
 
 const languageColors: Record<string, string> = {
   Python: "bg-yellow-500",
@@ -49,32 +37,108 @@ const languageColors: Record<string, string> = {
   Kotlin: "bg-purple-500",
 };
 
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 export default function Dashboard() {
-  const [projects, setProjects] = useState<Project[]>(mockProjects);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { files, loading, totalSize, deleteFile, saveFile } = useUserFiles();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [filterLanguage, setFilterLanguage] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredProjects = projects.filter((project) => {
-    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = !filterLanguage || project.language === filterLanguage;
+  const filteredFiles = files.filter((file) => {
+    const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = !filterLanguage || file.language === filterLanguage;
     return matchesSearch && matchesFilter;
   });
 
-  const handleDelete = (id: string) => {
-    setProjects(projects.filter((p) => p.id !== id));
-    toast.success("Project deleted");
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    const success = await deleteFile(id);
+    if (success) {
+      toast.success("File deleted");
+    }
+    setDeletingId(null);
   };
 
   const handleNewProject = () => {
-    toast.info("Create new project - Coming soon!");
+    navigate('/editor');
   };
 
-  const handleImport = () => {
-    toast.info("Import project - Coming soon!");
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!user) {
+      toast.error("Please sign in to import files");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const code = event.target?.result as string;
+      const extension = file.name.split('.').pop()?.toLowerCase();
+      
+      const languageMap: Record<string, string> = {
+        py: 'Python',
+        js: 'JavaScript',
+        java: 'Java',
+        cpp: 'C++',
+        c: 'C',
+        go: 'Go',
+        rs: 'Rust',
+        kt: 'Kotlin',
+      };
+
+      const language = languageMap[extension || ''] || 'Python';
+      
+      const result = await saveFile(file.name, language, code);
+      if (result) {
+        toast.success("File imported successfully!");
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  const usedStorage = 18.7; // KB
-  const totalStorage = 100 * 1024; // 100 MB in KB
+  const handleOpenInEditor = (file: typeof files[0]) => {
+    // Store file data in sessionStorage to load in editor
+    sessionStorage.setItem('openFile', JSON.stringify(file));
+    navigate('/editor');
+  };
+
+  const totalStorageMB = 100 * 1024 * 1024; // 100 MB in bytes
+  const usagePercentage = (totalSize / totalStorageMB) * 100;
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background py-8 px-4">
+        <div className="container max-w-6xl mx-auto text-center py-20">
+          <FileCode className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-lg font-medium mb-2">Sign in to view your dashboard</h3>
+          <p className="text-muted-foreground mb-6">
+            Create an account to save and manage your code files
+          </p>
+          <Button variant="hero" onClick={() => navigate('/auth')}>
+            Sign In
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">
@@ -92,10 +156,20 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex gap-3">
-              <Button variant="glass" onClick={handleImport}>
+              <Button 
+                variant="glass" 
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <Upload className="h-4 w-4 mr-2" />
                 Import
               </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                onChange={handleImport}
+                accept=".py,.js,.java,.cpp,.c,.go,.rs,.kt"
+              />
               <Button variant="hero" onClick={handleNewProject}>
                 <Plus className="h-4 w-4 mr-2" />
                 New Project
@@ -108,13 +182,13 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <h3 className="font-semibold">Cloud Storage</h3>
               <span className="text-sm text-muted-foreground">
-                {usedStorage.toFixed(1)} KB / 100 MB used
+                {formatBytes(totalSize)} / 100 MB used
               </span>
             </div>
             <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
               <div
                 className="h-full gradient-bg rounded-full transition-all duration-500"
-                style={{ width: `${(usedStorage / totalStorage) * 100}%` }}
+                style={{ width: `${Math.min(usagePercentage, 100)}%` }}
               />
             </div>
           </div>
@@ -124,7 +198,7 @@ export default function Dashboard() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search projects..."
+                placeholder="Search files..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -154,12 +228,17 @@ export default function Dashboard() {
             </DropdownMenu>
           </div>
 
-          {/* Projects Grid */}
-          {filteredProjects.length > 0 ? (
+          {/* Loading State */}
+          {loading ? (
+            <div className="text-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground mt-4">Loading your files...</p>
+            </div>
+          ) : filteredFiles.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProjects.map((project, i) => (
+              {filteredFiles.map((file, i) => (
                 <motion.div
-                  key={project.id}
+                  key={file.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
@@ -172,14 +251,14 @@ export default function Dashboard() {
                       </div>
                       <div>
                         <h4 className="font-medium truncate max-w-[150px]">
-                          {project.name}
+                          {file.name}
                         </h4>
                         <div className="flex items-center gap-2">
                           <div
-                            className={`w-2 h-2 rounded-full ${languageColors[project.language]}`}
+                            className={`w-2 h-2 rounded-full ${languageColors[file.language] || 'bg-gray-500'}`}
                           />
                           <span className="text-xs text-muted-foreground">
-                            {project.language}
+                            {file.language}
                           </span>
                         </div>
                       </div>
@@ -195,15 +274,20 @@ export default function Dashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleOpenInEditor(file)}>
                           <Code2 className="h-4 w-4 mr-2" />
                           Open in Editor
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive"
-                          onClick={() => handleDelete(project.id)}
+                          onClick={() => handleDelete(file.id)}
+                          disabled={deletingId === file.id}
                         >
-                          <Trash2 className="h-4 w-4 mr-2" />
+                          {deletingId === file.id ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 mr-2" />
+                          )}
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -212,9 +296,9 @@ export default function Dashboard() {
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {project.lastEdited}
+                      {formatDistanceToNow(new Date(file.updated_at), { addSuffix: true })}
                     </div>
-                    <span>{project.size}</span>
+                    <span>{formatBytes(file.size_bytes)}</span>
                   </div>
                 </motion.div>
               ))}
@@ -222,15 +306,15 @@ export default function Dashboard() {
           ) : (
             <div className="text-center py-20">
               <FileCode className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No projects found</h3>
+              <h3 className="text-lg font-medium mb-2">No files found</h3>
               <p className="text-muted-foreground mb-6">
                 {searchQuery
                   ? "Try adjusting your search or filter"
-                  : "Create your first project to get started"}
+                  : "Create your first file to get started"}
               </p>
               <Button variant="hero" onClick={handleNewProject}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Project
+                Create File
               </Button>
             </div>
           )}

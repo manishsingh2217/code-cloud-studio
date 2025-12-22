@@ -1,17 +1,28 @@
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Github, Mail } from "lucide-react";
-import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Eye, EyeOff, Github, Mail, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user, signUp, signIn, signInWithGoogle, signInWithGithub } = useAuth();
+  
   const [isSignUp, setIsSignUp] = useState(searchParams.get("mode") === "signup");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,25 +30,91 @@ export default function Auth() {
     confirmPassword: "",
   });
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  const validateForm = () => {
+    try {
+      authSchema.parse({ email: formData.email, password: formData.password });
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const fieldErrors: { email?: string; password?: string } = {};
+        err.errors.forEach((error) => {
+          if (error.path[0] === 'email') fieldErrors.email = error.message;
+          if (error.path[0] === 'password') fieldErrors.password = error.message;
+        });
+        setErrors(fieldErrors);
+      }
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!validateForm()) return;
+
     if (isSignUp && formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
 
     setIsLoading(true);
-    
-    // Simulate auth (would connect to Supabase in production)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    toast.success(isSignUp ? "Account created successfully!" : "Signed in successfully!");
-    setIsLoading(false);
+
+    try {
+      if (isSignUp) {
+        const { error } = await signUp(formData.email, formData.password);
+        if (error) {
+          if (error.message.includes('already registered')) {
+            toast.error("This email is already registered. Please sign in instead.");
+          } else {
+            toast.error(error.message);
+          }
+        } else {
+          toast.success("Account created! Please check your email to confirm.");
+        }
+      } else {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            toast.error("Invalid email or password. Please try again.");
+          } else {
+            toast.error(error.message);
+          }
+        } else {
+          toast.success("Signed in successfully!");
+          navigate('/dashboard');
+        }
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleOAuth = (provider: string) => {
-    toast.info(`${provider} authentication - Connect to Supabase to enable`);
+  const handleGoogleAuth = async () => {
+    setIsLoading(true);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      toast.error(error.message);
+      setIsLoading(false);
+    }
+  };
+
+  const handleGithubAuth = async () => {
+    setIsLoading(true);
+    const { error } = await signInWithGithub();
+    if (error) {
+      toast.error(error.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -76,7 +153,8 @@ export default function Auth() {
             <Button
               variant="glass"
               className="w-full"
-              onClick={() => handleOAuth("GitHub")}
+              onClick={handleGithubAuth}
+              disabled={isLoading}
             >
               <Github className="h-5 w-5 mr-2" />
               Continue with GitHub
@@ -84,7 +162,8 @@ export default function Auth() {
             <Button
               variant="glass"
               className="w-full"
-              onClick={() => handleOAuth("Google")}
+              onClick={handleGoogleAuth}
+              disabled={isLoading}
             >
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -138,6 +217,9 @@ export default function Auth() {
                   required
                 />
               </div>
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -166,6 +248,9 @@ export default function Auth() {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password}</p>
+              )}
             </div>
 
             {isSignUp && (
@@ -190,11 +275,16 @@ export default function Auth() {
               className="w-full"
               disabled={isLoading}
             >
-              {isLoading
-                ? "Loading..."
-                : isSignUp
-                ? "Create Account"
-                : "Sign In"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : isSignUp ? (
+                "Create Account"
+              ) : (
+                "Sign In"
+              )}
             </Button>
           </form>
 
