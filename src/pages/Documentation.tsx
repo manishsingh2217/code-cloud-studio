@@ -63,17 +63,6 @@ for i in range(10):
 age = int(input("Enter your age: "))
 print(f"Hello {name}, you are {age} years old!")`,
       },
-      {
-        title: "File Operations",
-        code: `# Writing to a file
-with open("example.txt", "w") as f:
-    f.write("Hello, File!")
-
-# Reading from a file
-with open("example.txt", "r") as f:
-    content = f.read()
-    print(content)`,
-      },
     ],
   },
   {
@@ -88,7 +77,7 @@ var isAwesome = true;
 
 // Functions
 function greet(name) {
-    return \`Hello, \${name}!\`;
+    return "Hello, " + name + "!";
 }
 
 // Arrow Functions
@@ -98,6 +87,9 @@ const add = (a, b) => a + b;
 const languages = ["Python", "JavaScript", "Java"];
 languages.forEach(lang => console.log(lang));
 
+// Objects
+const user = { name: "John", age: 25 };
+
 // Classes
 class Editor {
     constructor(name) {
@@ -105,24 +97,15 @@ class Editor {
     }
     
     run() {
-        console.log(\`\${this.name} is running...\`);
+        console.log(this.name + " is running...");
     }
 }
 
-// Promises and Async/Await
+// Async/Await
 async function fetchData() {
-    try {
-        const response = await fetch('https://api.example.com');
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-// Destructuring
-const { name: userName, age } = { name: "John", age: 25 };
-const [first, second] = [1, 2];`,
+    const response = await fetch('https://api.example.com');
+    return response.json();
+}`,
     examples: [
       {
         title: "Hello World",
@@ -139,22 +122,6 @@ const sum = numbers.reduce((a, b) => a + b, 0);
 console.log("Doubled:", doubled);
 console.log("Evens:", evens);
 console.log("Sum:", sum);`,
-      },
-      {
-        title: "Object Manipulation",
-        code: `const person = {
-    name: "Alice",
-    age: 30,
-    city: "NYC"
-};
-
-// Object destructuring
-const { name, age } = person;
-console.log(\`\${name} is \${age} years old\`);
-
-// Spread operator
-const updated = { ...person, age: 31 };
-console.log(updated);`,
       },
       {
         title: "Promises",
@@ -185,41 +152,31 @@ public class Main {
         double version = 1.0;
         boolean isAwesome = true;
         
-        // Method call
-        System.out.println(greet("World"));
+        System.out.println("Hello, World!");
         
         // Arrays
         String[] languages = {"Python", "JavaScript", "Java"};
         for (String lang : languages) {
             System.out.println(lang);
         }
-        
-        // ArrayList
-        ArrayList<Integer> numbers = new ArrayList<>();
-        numbers.add(1);
-        numbers.add(2);
-        
-        // Lambda expressions (Java 8+)
-        numbers.forEach(n -> System.out.println(n));
     }
     
+    // Methods
     public static String greet(String name) {
         return "Hello, " + name + "!";
     }
 }
 
-// Class with constructor
-class Person {
+// Classes
+class Editor {
     private String name;
-    private int age;
     
-    public Person(String name, int age) {
+    public Editor(String name) {
         this.name = name;
-        this.age = age;
     }
     
-    public String getName() {
-        return name;
+    public void run() {
+        System.out.println(name + " is running...");
     }
 }`,
     examples: [
@@ -232,7 +189,7 @@ class Person {
 }`,
       },
       {
-        title: "Read User Input",
+        title: "User Input",
         code: `import java.util.Scanner;
 
 public class Main {
@@ -246,54 +203,6 @@ public class Main {
         int age = scanner.nextInt();
         
         System.out.println("Hello " + name + ", you are " + age + " years old!");
-        scanner.close();
-    }
-}`,
-      },
-      {
-        title: "Factorial Calculation",
-        code: `public class Main {
-    public static void main(String[] args) {
-        int n = 5;
-        long factorial = 1;
-        
-        for (int i = 1; i <= n; i++) {
-            factorial *= i;
-        }
-        
-        System.out.println("Factorial of " + n + " = " + factorial);
-    }
-}`,
-      },
-      {
-        title: "Object-Oriented Example",
-        code: `class Animal {
-    protected String name;
-    
-    public Animal(String name) {
-        this.name = name;
-    }
-    
-    public void speak() {
-        System.out.println(name + " makes a sound");
-    }
-}
-
-class Dog extends Animal {
-    public Dog(String name) {
-        super(name);
-    }
-    
-    @Override
-    public void speak() {
-        System.out.println(name + " barks!");
-    }
-}
-
-public class Main {
-    public static void main(String[] args) {
-        Animal dog = new Dog("Buddy");
-        dog.speak();
     }
 }`,
       },
@@ -303,35 +212,16 @@ public class Main {
     id: "cpp",
     name: "C++",
     color: "bg-blue-500",
-    description: "A powerful systems programming language offering low-level memory control and high performance.",
+    description: "A powerful systems programming language known for performance and used in game development.",
     syntax: `#include <iostream>
 #include <vector>
 #include <string>
-#include <memory>
 
 using namespace std;
 
-// Function
-string greet(const string& name) {
+// Function declaration
+string greet(string name) {
     return "Hello, " + name + "!";
-}
-
-// Class
-class Editor {
-public:
-    string name;
-    
-    Editor(const string& n) : name(n) {}
-    
-    void run() {
-        cout << name << " is running..." << endl;
-    }
-};
-
-// Template function
-template <typename T>
-T add(T a, T b) {
-    return a + b;
 }
 
 int main() {
@@ -340,22 +230,29 @@ int main() {
     double version = 1.0;
     bool isAwesome = true;
     
-    // Smart pointers (C++11)
-    auto editor = make_unique<Editor>("CloudCode");
-    editor->run();
+    cout << greet("World") << endl;
     
-    // Vector (dynamic array)
-    vector<string> languages = {"Python", "JavaScript", "Java"};
+    // Vectors
+    vector<string> languages = {"Python", "JavaScript", "C++"};
     for (const auto& lang : languages) {
         cout << lang << endl;
     }
     
-    // Lambda expressions
-    auto square = [](int x) { return x * x; };
-    cout << square(5) << endl;
-    
     return 0;
-}`,
+}
+
+// Classes
+class Editor {
+private:
+    string name;
+    
+public:
+    Editor(string n) : name(n) {}
+    
+    void run() {
+        cout << name << " is running..." << endl;
+    }
+};`,
     examples: [
       {
         title: "Hello World",
@@ -371,77 +268,17 @@ int main() {
         code: `#include <iostream>
 #include <string>
 
-using namespace std;
-
 int main() {
-    string name;
+    std::string name;
     int age;
     
-    cout << "Enter your name: ";
-    getline(cin, name);
+    std::cout << "Enter your name: ";
+    std::getline(std::cin, name);
     
-    cout << "Enter your age: ";
-    cin >> age;
+    std::cout << "Enter your age: ";
+    std::cin >> age;
     
-    cout << "Hello " << name << ", you are " << age << " years old!" << endl;
-    
-    return 0;
-}`,
-      },
-      {
-        title: "Pointers and Memory",
-        code: `#include <iostream>
-
-using namespace std;
-
-int main() {
-    int value = 42;
-    int* ptr = &value;
-    
-    cout << "Value: " << value << endl;
-    cout << "Address: " << ptr << endl;
-    cout << "Dereferenced: " << *ptr << endl;
-    
-    // Dynamic memory
-    int* arr = new int[5];
-    for (int i = 0; i < 5; i++) {
-        arr[i] = i * 10;
-        cout << arr[i] << " ";
-    }
-    cout << endl;
-    
-    delete[] arr;
-    
-    return 0;
-}`,
-      },
-      {
-        title: "STL Containers",
-        code: `#include <iostream>
-#include <vector>
-#include <map>
-#include <algorithm>
-
-using namespace std;
-
-int main() {
-    // Vector
-    vector<int> nums = {5, 2, 8, 1, 9};
-    sort(nums.begin(), nums.end());
-    
-    cout << "Sorted: ";
-    for (int n : nums) cout << n << " ";
-    cout << endl;
-    
-    // Map
-    map<string, int> ages;
-    ages["Alice"] = 25;
-    ages["Bob"] = 30;
-    
-    for (const auto& [name, age] : ages) {
-        cout << name << ": " << age << endl;
-    }
-    
+    std::cout << "Hello " << name << ", you are " << age << " years old!" << std::endl;
     return 0;
 }`,
       },
@@ -451,62 +288,32 @@ int main() {
     id: "c",
     name: "C",
     color: "bg-gray-500",
-    description: "The foundational systems programming language, known for its efficiency and direct hardware access.",
+    description: "The foundational systems programming language, essential for operating systems and embedded systems.",
     syntax: `#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 // Function declaration
-int add(int a, int b);
-void greet(const char* name);
-
-// Struct
-struct Person {
-    char name[50];
-    int age;
-};
+void greet(char* name) {
+    printf("Hello, %s!\\n", name);
+}
 
 int main() {
     // Variables
-    int number = 42;
-    float decimal = 3.14;
-    char character = 'A';
-    char string[] = "Hello";
+    char name[] = "CloudCode";
+    float version = 1.0;
+    int isAwesome = 1;
     
-    // Pointers
-    int* ptr = &number;
-    printf("Value: %d, Address: %p\\n", *ptr, (void*)ptr);
+    greet("World");
     
     // Arrays
-    int numbers[5] = {1, 2, 3, 4, 5};
-    for (int i = 0; i < 5; i++) {
-        printf("%d ", numbers[i]);
-    }
-    printf("\\n");
+    char* languages[] = {"Python", "JavaScript", "C"};
+    int len = 3;
     
-    // Dynamic memory
-    int* arr = (int*)malloc(5 * sizeof(int));
-    if (arr != NULL) {
-        for (int i = 0; i < 5; i++) {
-            arr[i] = i * 10;
-        }
-        free(arr);
+    for (int i = 0; i < len; i++) {
+        printf("%s\\n", languages[i]);
     }
-    
-    // Struct usage
-    struct Person person;
-    strcpy(person.name, "John");
-    person.age = 25;
     
     return 0;
-}
-
-int add(int a, int b) {
-    return a + b;
-}
-
-void greet(const char* name) {
-    printf("Hello, %s!\\n", name);
 }`,
     examples: [
       {
@@ -533,68 +340,6 @@ int main() {
     scanf("%d", &age);
     
     printf("Hello %s, you are %d years old!\\n", name, age);
-    
-    return 0;
-}`,
-      },
-      {
-        title: "Array Operations",
-        code: `#include <stdio.h>
-
-int main() {
-    int numbers[] = {5, 2, 8, 1, 9};
-    int size = sizeof(numbers) / sizeof(numbers[0]);
-    int sum = 0;
-    
-    // Calculate sum
-    for (int i = 0; i < size; i++) {
-        sum += numbers[i];
-    }
-    
-    printf("Sum: %d\\n", sum);
-    printf("Average: %.2f\\n", (float)sum / size);
-    
-    return 0;
-}`,
-      },
-      {
-        title: "Linked List",
-        code: `#include <stdio.h>
-#include <stdlib.h>
-
-struct Node {
-    int data;
-    struct Node* next;
-};
-
-void printList(struct Node* head) {
-    while (head != NULL) {
-        printf("%d -> ", head->data);
-        head = head->next;
-    }
-    printf("NULL\\n");
-}
-
-int main() {
-    struct Node* head = malloc(sizeof(struct Node));
-    struct Node* second = malloc(sizeof(struct Node));
-    struct Node* third = malloc(sizeof(struct Node));
-    
-    head->data = 1;
-    head->next = second;
-    
-    second->data = 2;
-    second->next = third;
-    
-    third->data = 3;
-    third->next = NULL;
-    
-    printList(head);
-    
-    free(head);
-    free(second);
-    free(third);
-    
     return 0;
 }`,
       },
@@ -604,31 +349,14 @@ int main() {
     id: "go",
     name: "Go",
     color: "bg-cyan-500",
-    description: "A modern, concurrent language by Google, perfect for cloud services and DevOps tools.",
+    description: "A modern language designed for simplicity, concurrency, and building scalable systems.",
     syntax: `package main
 
-import (
-    "fmt"
-    "sync"
-)
+import "fmt"
 
 // Function
 func greet(name string) string {
-    return fmt.Sprintf("Hello, %s!", name)
-}
-
-// Struct (similar to class)
-type Editor struct {
-    Name string
-}
-
-func (e Editor) Run() {
-    fmt.Printf("%s is running...\\n", e.Name)
-}
-
-// Interface
-type Runner interface {
-    Run()
+    return "Hello, " + name + "!"
 }
 
 func main() {
@@ -637,39 +365,32 @@ func main() {
     version := 1.0
     isAwesome := true
     
-    fmt.Println(name, version, isAwesome)
+    fmt.Println(greet("World"))
     
-    // Slice (dynamic array)
-    languages := []string{"Python", "JavaScript", "Java"}
+    // Slices
+    languages := []string{"Python", "JavaScript", "Go"}
     for _, lang := range languages {
         fmt.Println(lang)
     }
     
-    // Map
-    ages := map[string]int{
-        "Alice": 25,
-        "Bob":   30,
+    // Maps
+    user := map[string]interface{}{
+        "name": "John",
+        "age":  25,
     }
+    fmt.Println(user)
     
-    for name, age := range ages {
-        fmt.Printf("%s is %d\\n", name, age)
-    }
-    
-    // Goroutines (concurrency)
-    var wg sync.WaitGroup
-    wg.Add(2)
-    
-    go func() {
-        defer wg.Done()
-        fmt.Println("Goroutine 1")
-    }()
-    
-    go func() {
-        defer wg.Done()
-        fmt.Println("Goroutine 2")
-    }()
-    
-    wg.Wait()
+    _ = version
+    _ = isAwesome
+}
+
+// Structs
+type Editor struct {
+    Name string
+}
+
+func (e Editor) Run() {
+    fmt.Println(e.Name + " is running...")
 }`,
     examples: [
       {
@@ -686,87 +407,19 @@ func main() {
         title: "User Input",
         code: `package main
 
-import (
-    "bufio"
-    "fmt"
-    "os"
-)
+import "fmt"
 
 func main() {
-    reader := bufio.NewReader(os.Stdin)
+    var name string
+    var age int
     
     fmt.Print("Enter your name: ")
-    name, _ := reader.ReadString('\\n')
+    fmt.Scanln(&name)
     
-    fmt.Printf("Hello, %s", name)
-}`,
-      },
-      {
-        title: "Error Handling",
-        code: `package main
-
-import (
-    "errors"
-    "fmt"
-)
-
-func divide(a, b float64) (float64, error) {
-    if b == 0 {
-        return 0, errors.New("cannot divide by zero")
-    }
-    return a / b, nil
-}
-
-func main() {
-    result, err := divide(10, 2)
-    if err != nil {
-        fmt.Println("Error:", err)
-        return
-    }
-    fmt.Println("Result:", result)
+    fmt.Print("Enter your age: ")
+    fmt.Scanln(&age)
     
-    _, err = divide(10, 0)
-    if err != nil {
-        fmt.Println("Error:", err)
-    }
-}`,
-      },
-      {
-        title: "Goroutines & Channels",
-        code: `package main
-
-import (
-    "fmt"
-    "time"
-)
-
-func worker(id int, jobs <-chan int, results chan<- int) {
-    for j := range jobs {
-        fmt.Printf("Worker %d processing job %d\\n", id, j)
-        time.Sleep(100 * time.Millisecond)
-        results <- j * 2
-    }
-}
-
-func main() {
-    jobs := make(chan int, 5)
-    results := make(chan int, 5)
-    
-    // Start 3 workers
-    for w := 1; w <= 3; w++ {
-        go worker(w, jobs, results)
-    }
-    
-    // Send 5 jobs
-    for j := 1; j <= 5; j++ {
-        jobs <- j
-    }
-    close(jobs)
-    
-    // Collect results
-    for a := 1; a <= 5; a++ {
-        fmt.Println("Result:", <-results)
-    }
+    fmt.Printf("Hello %s, you are %d years old!\\n", name, age)
 }`,
       },
     ],
@@ -775,39 +428,10 @@ func main() {
     id: "rust",
     name: "Rust",
     color: "bg-orange-500",
-    description: "A systems language focused on safety and performance, great for WebAssembly and systems programming.",
-    syntax: `// Function
+    description: "A memory-safe systems language focused on performance, reliability, and productivity.",
+    syntax: `// Functions
 fn greet(name: &str) -> String {
     format!("Hello, {}!", name)
-}
-
-// Struct
-struct Editor {
-    name: String,
-}
-
-impl Editor {
-    fn new(name: &str) -> Self {
-        Editor {
-            name: name.to_string(),
-        }
-    }
-    
-    fn run(&self) {
-        println!("{} is running...", self.name);
-    }
-}
-
-// Enum
-enum Status {
-    Active,
-    Inactive,
-    Pending(String),
-}
-
-// Trait (interface)
-trait Runnable {
-    fn run(&self);
 }
 
 fn main() {
@@ -816,29 +440,36 @@ fn main() {
     let version: f64 = 1.0;
     let is_awesome = true;
     
-    println!("{} {} {}", name, version, is_awesome);
+    println!("{}", greet("World"));
     
-    // Mutable variable
-    let mut counter = 0;
-    counter += 1;
-    
-    // Vector
-    let languages = vec!["Python", "JavaScript", "Java"];
+    // Vectors
+    let languages = vec!["Python", "JavaScript", "Rust"];
     for lang in &languages {
         println!("{}", lang);
     }
     
-    // Option type
-    let some_number: Option<i32> = Some(42);
-    if let Some(n) = some_number {
-        println!("Number: {}", n);
+    // Match expressions
+    let result = match is_awesome {
+        true => "Yes!",
+        false => "No...",
+    };
+    println!("Is it awesome? {}", result);
+    
+    let _ = version;
+}
+
+// Structs
+struct Editor {
+    name: String,
+}
+
+impl Editor {
+    fn new(name: &str) -> Self {
+        Editor { name: name.to_string() }
     }
     
-    // Result type for error handling
-    let result: Result<i32, &str> = Ok(42);
-    match result {
-        Ok(value) => println!("Value: {}", value),
-        Err(e) => println!("Error: {}", e),
+    fn run(&self) {
+        println!("{} is running...", self.name);
     }
 }`,
     examples: [
@@ -853,73 +484,12 @@ fn main() {
         code: `use std::io;
 
 fn main() {
-    println!("Enter your name:");
-    
     let mut name = String::new();
-    io::stdin()
-        .read_line(&mut name)
-        .expect("Failed to read line");
+    
+    println!("Enter your name:");
+    io::stdin().read_line(&mut name).expect("Failed to read");
     
     println!("Hello, {}!", name.trim());
-}`,
-      },
-      {
-        title: "Ownership & Borrowing",
-        code: `fn main() {
-    // Ownership
-    let s1 = String::from("hello");
-    let s2 = s1; // s1 is moved, no longer valid
-    println!("{}", s2);
-    
-    // Borrowing (reference)
-    let s3 = String::from("world");
-    let len = calculate_length(&s3);
-    println!("Length of '{}' is {}", s3, len);
-    
-    // Mutable reference
-    let mut s4 = String::from("hello");
-    change(&mut s4);
-    println!("{}", s4);
-}
-
-fn calculate_length(s: &String) -> usize {
-    s.len()
-}
-
-fn change(s: &mut String) {
-    s.push_str(", world!");
-}`,
-      },
-      {
-        title: "Pattern Matching",
-        code: `enum Coin {
-    Penny,
-    Nickel,
-    Dime,
-    Quarter,
-}
-
-fn value_in_cents(coin: Coin) -> u8 {
-    match coin {
-        Coin::Penny => 1,
-        Coin::Nickel => 5,
-        Coin::Dime => 10,
-        Coin::Quarter => 25,
-    }
-}
-
-fn main() {
-    let coins = [Coin::Penny, Coin::Quarter, Coin::Dime];
-    
-    for coin in coins {
-        println!("Value: {} cents", value_in_cents(coin));
-    }
-    
-    // if let for simple matching
-    let number = Some(7);
-    if let Some(n) = number {
-        println!("Number is {}", n);
-    }
 }`,
       },
     ],
@@ -928,60 +498,42 @@ fn main() {
     id: "kotlin",
     name: "Kotlin",
     color: "bg-purple-500",
-    description: "A modern, concise language for Android and JVM development with excellent Java interoperability.",
-    syntax: `// Main function
-fun main() {
-    // Variables
-    val name = "CloudCode"  // Immutable
-    var version = 1.0       // Mutable
-    val isAwesome = true
-    
-    println("$name $version $isAwesome")
-    
-    // Null safety
-    var nullable: String? = null
-    println(nullable?.length ?: "null")
-    
-    // Lists
-    val languages = listOf("Python", "JavaScript", "Java")
-    languages.forEach { println(it) }
-    
-    // Mutable list
-    val mutableList = mutableListOf(1, 2, 3)
-    mutableList.add(4)
-    
-    // Maps
-    val ages = mapOf("Alice" to 25, "Bob" to 30)
-    ages.forEach { (name, age) ->
-        println("$name is $age years old")
-    }
-    
-    // Data class
-    data class Person(val name: String, val age: Int)
-    val person = Person("John", 25)
-    println(person)
-    
-    // Extension function
-    fun String.addExclamation() = "$this!"
-    println("Hello".addExclamation())
-    
-    // Lambda
-    val double = { x: Int -> x * 2 }
-    println(double(5))
-    
-    // Higher-order function
-    val numbers = listOf(1, 2, 3, 4, 5)
-    val doubled = numbers.map { it * 2 }
-    println(doubled)
-}
-
-// Function with default parameter
-fun greet(name: String = "World"): String {
+    description: "A modern, concise language for Android and JVM development, fully interoperable with Java.",
+    syntax: `// Functions
+fun greet(name: String): String {
     return "Hello, $name!"
 }
 
-// Class
-class Editor(val name: String) {
+fun main() {
+    // Variables
+    val name = "CloudCode"  // immutable
+    var version = 1.0       // mutable
+    val isAwesome = true
+    
+    println(greet("World"))
+    
+    // Lists
+    val languages = listOf("Python", "JavaScript", "Kotlin")
+    for (lang in languages) {
+        println(lang)
+    }
+    
+    // When expression
+    val result = when {
+        isAwesome -> "Yes!"
+        else -> "No..."
+    }
+    println("Is it awesome? $result")
+    
+    version = 2.0
+    println("Version: $version")
+}
+
+// Data classes
+data class User(val name: String, val age: Int)
+
+// Classes
+class Editor(private val name: String) {
     fun run() {
         println("$name is running...")
     }
@@ -997,7 +549,7 @@ class Editor(val name: String) {
         title: "User Input",
         code: `fun main() {
     print("Enter your name: ")
-    val name = readLine() ?: "Unknown"
+    val name = readLine() ?: ""
     
     print("Enter your age: ")
     val age = readLine()?.toIntOrNull() ?: 0
@@ -1006,34 +558,14 @@ class Editor(val name: String) {
 }`,
       },
       {
-        title: "Null Safety",
-        code: `fun main() {
-    // Nullable type
-    var name: String? = "Alice"
-    println(name?.length)  // Safe call
-    
-    name = null
-    println(name?.length ?: "Name is null")  // Elvis operator
-    
-    // Not-null assertion (use carefully!)
-    val nonNullName: String = name ?: "Default"
-    println(nonNullName)
-    
-    // Safe casting
-    val obj: Any = "Hello"
-    val str: String? = obj as? String
-    println(str?.uppercase())
-}`,
-      },
-      {
-        title: "Collections & Lambdas",
+        title: "Collections",
         code: `data class Person(val name: String, val age: Int)
 
 fun main() {
     val people = listOf(
-        Person("Alice", 29),
-        Person("Bob", 31),
-        Person("Charlie", 25)
+        Person("Alice", 25),
+        Person("Bob", 30),
+        Person("Charlie", 22)
     )
     
     // Filter and map
@@ -1044,11 +576,7 @@ fun main() {
     
     // Sorting
     val sorted = people.sortedBy { it.age }
-    println("By age: ${sorted.map { it.name }}")
-    
-    // Grouping
-    val byAge = people.groupBy { if (it.age >= 30) "30+" else "Under 30" }
-    println("Grouped: $byAge")
+    println("By age: " + sorted.map { it.name })
     
     // Reduce
     val totalAge = people.sumOf { it.age }
