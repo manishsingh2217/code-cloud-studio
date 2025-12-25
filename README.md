@@ -82,11 +82,11 @@ npm i
 npm run dev
 ```
 
-*** 🔄 Deployment Workflow
+### 🔄 Deployment Workflow
 
-# Connected GitHub repository to Render
-# Automatic deployment on every push
-# Backend services handled
+* Connected GitHub repository to Render
+* Automatic deployment on every push
+*  Backend services handled
 
 🧩 Future Enhancements
 
