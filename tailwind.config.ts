@@ -145,9 +145,9 @@ export default {
   			'fade-in': 'fade-in 0.5s ease-out forwards',
   			shimmer: 'shimmer 2s linear infinite'
   		},
-		backgroundImage: {
-			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))'
-		},
+  		backgroundImage: {
+  			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))'
+  		},
   		boxShadow: {
   			'2xs': 'var(--shadow-2xs)',
   			xs: 'var(--shadow-xs)',
