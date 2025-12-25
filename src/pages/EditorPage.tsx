@@ -46,19 +46,48 @@ const languages = [
   { id: "kotlin", name: "Kotlin", extension: "kt", template: 'fun main() {\n    println("Hello, World!")\n}' },
 ];
 
+// Storage key for persisting editor state
+const EDITOR_STATE_KEY = 'editor-state';
+
 export default function EditorPage() {
   const { user } = useAuth();
   const { saveFile } = useUserFiles();
   
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-  const [code, setCode] = useState(languages[0].template);
+  // Initialize state from localStorage
+  const getInitialState = () => {
+    try {
+      const saved = localStorage.getItem(EDITOR_STATE_KEY);
+      if (saved) {
+        const state = JSON.parse(saved);
+        const lang = languages.find(l => l.id === state.languageId) || languages[0];
+        return { lang, code: state.code || lang.template, stdin: state.stdin || "" };
+      }
+    } catch (e) {
+      console.error('Error loading saved state:', e);
+    }
+    return { lang: languages[0], code: languages[0].template, stdin: "" };
+  };
+
+  const initialState = getInitialState();
+  const [selectedLanguage, setSelectedLanguage] = useState(initialState.lang);
+  const [code, setCode] = useState(initialState.code);
   const [output, setOutput] = useState("");
-  const [stdin, setStdin] = useState("");
+  const [stdin, setStdin] = useState(initialState.stdin);
   const [isRunning, setIsRunning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fileName, setFileName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Persist editor state to localStorage
+  useEffect(() => {
+    const state = {
+      languageId: selectedLanguage.id,
+      code,
+      stdin,
+    };
+    localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
+  }, [selectedLanguage, code, stdin]);
 
   // Load file from sessionStorage if coming from dashboard
   useEffect(() => {
@@ -76,6 +105,21 @@ export default function EditorPage() {
       }
     }
   }, []);
+
+  // Keyboard shortcut: Cmd/Ctrl + Enter to run
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (!isRunning) {
+          handleRun();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isRunning, code, selectedLanguage, stdin]);
 
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
@@ -225,6 +269,7 @@ export default function EditorPage() {
               onClick={handleRun}
               disabled={isRunning}
               className="gap-2"
+              title="Run (⌘/Ctrl + Enter)"
             >
               {isRunning ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
