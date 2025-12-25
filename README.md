@@ -1,24 +1,70 @@
-# Welcome to your Code claude
+# ☁️ CloudCode – Cloud-Based Online Code Editor
 
-## Project info
+CloudCode is a modern, cloud-powered online coding platform that enables developers and students to **write, edit, run, and manage code directly in the browser** — without installing any local development tools.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+🌐 **Live Demo**: https://codeoncloud.onrender.com/
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 📸 Preview
 
-**Use Lovable**
+![CloudCode Hero Section](assets/hero.png)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+> A clean, professional, and developer-friendly cloud IDE interface.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🚀 Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- 🧑‍💻 Cloud-based code editor
+- ⚡ Instant code execution
+- 🌍 Multi-language support  
+  - Python  
+  - JavaScript  
+  - Java  
+  - C / C++  
+  - Go  
+  - Rust  
+  - Kotlin
+- 🔗 GitHub integration ready
+- 📱 Fully responsive UI
+- 🎨 Dark / Light mode support
+- ☁️ No local setup required
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React.js
+- JavaScript (ES6+)
+- HTML5
+- CSS3 / Tailwind
+
+### Backend
+- Cloud-hosted backend (Lovable Cloud)
+
+### Deployment
+- Frontend: **Render**
+- Version Control: **GitHub**
+
+---
+
+## 📂 Project Structure
+cloudcode/
+│
+├── src/
+│ ├── components/
+│ ├── pages/
+│ ├── assets/
+│ └── App.jsx
+│
+├── public/
+├── package.json
+└── README.md
+ 
+---
+
 
 Follow these steps:
 
@@ -36,38 +82,29 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+*** 🔄 Deployment Workflow
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# Connected GitHub repository to Render
+# Automatic deployment on every push
+# Backend services handled
 
-**Use GitHub Codespaces**
+🧩 Future Enhancements
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+🔐 User Authentication (Email / Google / GitHub)
 
-## What technologies are used for this project?
+📊 User Dashboard
 
-This project is built with:
+💾 Cloud file storage (100MB per user)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+🔁 Code conversion between languages
 
-## How can I deploy this project?
+📥 Download & share code snippets
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+👨‍💻 Author
 
-## Can I connect a custom domain to my Lovable project?
+Manish Singh
+Full-Stack Web Developer & Ethical Hacker
 
-Yes, you can!
+🌐 Live Project: https://codeoncloud.onrender.com/
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+💼 LinkedIn: https://www.linkedin.com/in/manishsingh22/
