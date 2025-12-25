@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Code2, Menu, Moon, Sun, X } from "lucide-react";
+import { Code2, LogOut, Menu, Moon, Sun, User, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavbarProps {
   isDark: boolean;
@@ -21,6 +22,7 @@ const navItems = [
 export function Navbar({ isDark, toggleTheme }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
   return (
     <motion.nav
@@ -74,16 +76,33 @@ export function Navbar({ isDark, toggleTheme }: NavbarProps) {
             </Button>
 
             <div className="hidden md:flex items-center gap-2">
-              <Link to="/auth">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/auth?mode=signup">
-                <Button variant="hero" size="sm">
-                  Get Started
-                </Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to="/profile">
+                    <Button variant="ghost" size="sm" className="gap-2">
+                      <User className="h-4 w-4" />
+                      Profile
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" onClick={signOut} className="gap-2">
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="ghost" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/auth?mode=signup">
+                    <Button variant="hero" size="sm">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -123,16 +142,33 @@ export function Navbar({ isDark, toggleTheme }: NavbarProps) {
                 </Link>
               ))}
               <div className="flex gap-2 pt-4 border-t border-border/50 mt-2">
-                <Link to="/auth" className="flex-1">
-                  <Button variant="ghost" className="w-full">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link to="/auth?mode=signup" className="flex-1">
-                  <Button variant="hero" className="w-full">
-                    Get Started
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link to="/profile" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full gap-2">
+                        <User className="h-4 w-4" />
+                        Profile
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" className="flex-1 gap-2" onClick={() => { signOut(); setIsOpen(false); }}>
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="ghost" className="w-full">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/auth?mode=signup" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="hero" className="w-full">
+                        Get Started
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
