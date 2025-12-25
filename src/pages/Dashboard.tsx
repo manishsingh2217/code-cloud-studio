@@ -141,27 +141,28 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen bg-background py-6 sm:py-8 px-4">
       <div className="container max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 sm:mb-8">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">Dashboard</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Manage your saved projects and files
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <Button 
                 variant="glass" 
                 onClick={() => fileInputRef.current?.click()}
+                className="text-sm"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Import
+                <Upload className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Import</span>
               </Button>
               <input
                 ref={fileInputRef}
@@ -170,18 +171,19 @@ export default function Dashboard() {
                 onChange={handleImport}
                 accept=".py,.js,.java,.cpp,.c,.go,.rs,.kt"
               />
-              <Button variant="hero" onClick={handleNewProject}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Project
+              <Button variant="hero" onClick={handleNewProject} className="text-sm">
+                <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">New Project</span>
+                <span className="xs:hidden">New</span>
               </Button>
             </div>
           </div>
 
           {/* Storage Info */}
-          <div className="glass rounded-xl p-6 mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <h3 className="font-semibold">Cloud Storage</h3>
-              <span className="text-sm text-muted-foreground">
+          <div className="glass rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-3 sm:mb-4">
+              <h3 className="font-semibold text-sm sm:text-base">Cloud Storage</h3>
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 {formatBytes(totalSize)} / 100 MB used
               </span>
             </div>
@@ -194,7 +196,7 @@ export default function Dashboard() {
           </div>
 
           {/* Search & Filter */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input

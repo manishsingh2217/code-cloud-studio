@@ -66,11 +66,11 @@ export default function Home() {
   return (
     <div className="relative overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center py-20 px-4">
+      <section className="relative min-h-[90vh] flex items-center justify-center py-12 sm:py-20 px-4">
         {/* Background Effects */}
         <div className="absolute inset-0 bg-grid-pattern opacity-50" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse-glow animation-delay-1000" />
+        <div className="absolute top-1/4 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
+        <div className="absolute bottom-1/4 right-1/4 w-40 sm:w-80 h-40 sm:h-80 bg-accent/10 rounded-full blur-3xl animate-pulse-glow animation-delay-1000" />
 
         <div className="container relative z-10">
           <motion.div
@@ -93,28 +93,28 @@ export default function Home() {
             </motion.div>
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
               Code anywhere.
               <br />
               <span className="gradient-text">Build everything.</span>
             </h1>
 
             {/* Subheadline */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
               A powerful cloud IDE with instant execution, multi-language
               support, and seamless GitHub integration. Start coding in seconds.
             </p>
 
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Link to="/editor">
-                <Button variant="hero" size="xl" className="group">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-16 px-4">
+              <Link to="/editor" className="w-full sm:w-auto">
+                <Button variant="hero" size="xl" className="group w-full sm:w-auto">
                   Start Coding
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link to="/docs">
-                <Button variant="glass" size="xl">
+              <Link to="/docs" className="w-full sm:w-auto">
+                <Button variant="glass" size="xl" className="w-full sm:w-auto">
                   View Documentation
                 </Button>
               </Link>
@@ -147,7 +147,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.8 }}
-            className="mt-20 max-w-4xl mx-auto"
+            className="mt-10 sm:mt-20 max-w-4xl mx-auto"
           >
             <div className="glass rounded-2xl overflow-hidden shadow-2xl">
               {/* Editor Header */}
@@ -162,7 +162,7 @@ export default function Home() {
                 </span>
               </div>
               {/* Code Content */}
-              <div className="p-6 font-mono text-sm bg-code-bg">
+              <div className="p-4 sm:p-6 font-mono text-xs sm:text-sm bg-code-bg overflow-x-auto">
                 <pre className="text-foreground">
                   <code>
                     <span className="text-purple-500">def</span>{" "}
@@ -199,18 +199,18 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 px-4">
+      <section className="py-12 sm:py-24 px-4">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
               Everything you need to code
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto px-2">
               Powerful features designed for developers of all skill levels
             </p>
           </motion.div>
@@ -237,31 +237,31 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4">
+      <section className="py-12 sm:py-24 px-4">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative rounded-3xl overflow-hidden"
+            className="relative rounded-2xl sm:rounded-3xl overflow-hidden"
           >
             <div className="absolute inset-0 gradient-bg opacity-10" />
-            <div className="relative glass p-12 md:p-20 text-center">
-              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <div className="relative glass p-6 sm:p-12 md:p-20 text-center">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6">
                 Ready to start coding?
               </h2>
-              <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
+              <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-10 max-w-xl mx-auto px-2">
                 Join thousands of developers building with CloudCode. Free to
                 start, powerful enough to scale.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/auth?mode=signup">
-                  <Button variant="hero" size="xl">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                <Link to="/auth?mode=signup" className="w-full sm:w-auto">
+                  <Button variant="hero" size="xl" className="w-full sm:w-auto">
                     Create Free Account
                   </Button>
                 </Link>
-                <Link to="/editor">
-                  <Button variant="glass" size="xl">
+                <Link to="/editor" className="w-full sm:w-auto">
+                  <Button variant="glass" size="xl" className="w-full sm:w-auto">
                     Try Without Account
                   </Button>
                 </Link>
@@ -272,14 +272,14 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-border/50">
+      <footer className="py-8 sm:py-12 px-4 border-t border-border/50">
         <div className="container">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col items-center gap-3 sm:gap-4 text-center md:flex-row md:justify-between md:text-left">
             <div className="flex items-center gap-2">
-              <Code2 className="h-6 w-6 text-primary" />
+              <Code2 className="h-5 sm:h-6 w-5 sm:w-6 text-primary" />
               <span className="font-bold gradient-text">CloudCode</span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               © 2024 CloudCode. Built for developers, by developers.
             </p>
           </div>
