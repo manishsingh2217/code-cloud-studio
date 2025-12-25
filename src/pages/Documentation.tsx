@@ -100,48 +100,50 @@ export default function Documentation() {
         className="container mx-auto px-4 py-12"
       >
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           <motion.div
             initial={{ y: -20 }}
             animate={{ y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary mb-4 sm:mb-6"
           >
-            <Book className="h-4 w-4" />
-            <span className="text-sm font-medium">Documentation</span>
+            <Book className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="text-xs sm:text-sm font-medium">Documentation</span>
           </motion.div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-3 sm:mb-4">
             Language Reference
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
             Quick reference guides and examples for all supported programming languages.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-4 gap-8">
+        <div className="grid lg:grid-cols-4 gap-6 sm:gap-8">
           {/* Language Selector */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-2">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+            <div className="sticky top-20 sm:top-24 space-y-1 sm:space-y-2">
+              <h3 className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 sm:mb-4">
                 Languages
               </h3>
-              {languages.map((lang) => (
-                <button
-                  key={lang.id}
-                  onClick={() => setSelectedLang(lang)}
-                  className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left",
-                    selectedLang.id === lang.id
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-muted text-foreground"
-                  )}
-                >
-                  <div className={cn("w-3 h-3 rounded-full", lang.color)} />
-                  <span className="font-medium">{lang.name}</span>
-                  {selectedLang.id === lang.id && (
-                    <ChevronRight className="h-4 w-4 ml-auto" />
-                  )}
-                </button>
-              ))}
+              <div className="flex flex-wrap lg:flex-col gap-2">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => setSelectedLang(lang)}
+                    className={cn(
+                      "flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 text-left",
+                      selectedLang.id === lang.id
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-muted text-foreground"
+                    )}
+                  >
+                    <div className={cn("w-2 h-2 sm:w-3 sm:h-3 rounded-full", lang.color)} />
+                    <span className="font-medium text-sm sm:text-base">{lang.name}</span>
+                    {selectedLang.id === lang.id && (
+                      <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4 ml-auto hidden lg:block" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -154,15 +156,15 @@ export default function Documentation() {
               className="space-y-8"
             >
               {/* Language Header */}
-              <div className="flex items-start gap-4">
-                <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", selectedLang.color)}>
-                  <Code2 className="h-6 w-6 text-white" />
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0", selectedLang.color)}>
+                  <Code2 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold text-foreground">
+                  <h2 className="text-xl sm:text-3xl font-bold text-foreground">
                     {selectedLang.name}
                   </h2>
-                  <p className="text-muted-foreground mt-1">
+                  <p className="text-sm sm:text-base text-muted-foreground mt-1">
                     {selectedLang.description}
                   </p>
                 </div>

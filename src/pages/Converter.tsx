@@ -109,16 +109,16 @@ export default function Converter() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
+    <div className="min-h-screen bg-background py-6 sm:py-8 px-4">
       <div className="container max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Code Converter</h1>
-            <p className="text-muted-foreground">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Code Converter</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Convert code between languages instantly with AI
             </p>
           </div>
@@ -174,18 +174,18 @@ export default function Converter() {
           </div>
 
           {/* Editors */}
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Source Editor */}
             <div className="glass rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                <span className="font-medium text-sm">Source ({sourceLanguage.name})</span>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleCopy(sourceCode)}>
-                    <Copy className="h-4 w-4" />
+              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
+                <span className="font-medium text-xs sm:text-sm">Source ({sourceLanguage.name})</span>
+                <div className="flex gap-1 sm:gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleCopy(sourceCode)} className="h-8 w-8">
+                    <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>
-              <div className="h-[400px]">
+              <div className="h-[300px] sm:h-[400px]">
                 <Editor
                   height="100%"
                   language={sourceLanguage.id}
@@ -205,22 +205,23 @@ export default function Converter() {
 
             {/* Target Editor */}
             <div className="glass rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                <span className="font-medium text-sm">Target ({targetLanguage.name})</span>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleCopy(targetCode)}>
-                    <Copy className="h-4 w-4" />
+              <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
+                <span className="font-medium text-xs sm:text-sm">Target ({targetLanguage.name})</span>
+                <div className="flex gap-1 sm:gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleCopy(targetCode)} className="h-8 w-8">
+                    <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => handleDownload(targetCode, targetLanguage.id)}
+                    className="h-8 w-8"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>
-              <div className="h-[400px]">
+              <div className="h-[300px] sm:h-[400px]">
                 <Editor
                   height="100%"
                   language={targetLanguage.id}

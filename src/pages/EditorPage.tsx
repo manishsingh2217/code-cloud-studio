@@ -234,14 +234,14 @@ export default function EditorPage() {
         className="h-[calc(100vh-4rem)] flex flex-col"
       >
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-3 border-b border-border glass">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 border-b border-border glass">
           {/* Language Selector */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="glass" className="min-w-[140px] justify-between">
+                <Button variant="glass" className="min-w-[100px] sm:min-w-[140px] justify-between text-xs sm:text-sm">
                   {selectedLanguage.name}
-                  <ChevronDown className="h-4 w-4 ml-2" />
+                  <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4 ml-1 sm:ml-2" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[140px]">
@@ -256,33 +256,33 @@ export default function EditorPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <span className="text-sm text-muted-foreground hidden sm:block">
+            <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
               main.{selectedLanguage.extension}
             </span>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               variant="hero"
               size="sm"
               onClick={handleRun}
               disabled={isRunning}
-              className="gap-2"
+              className="gap-1 sm:gap-2 px-2 sm:px-3"
               title="Run (⌘/Ctrl + Enter)"
             >
               {isRunning ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
               ) : (
-                <Play className="h-4 w-4" />
+                <Play className="h-3 w-3 sm:h-4 sm:w-4" />
               )}
               <span className="hidden sm:inline">Run</span>
             </Button>
 
             <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
               <DialogTrigger asChild>
-                <Button variant="glass" size="sm">
-                  <Save className="h-4 w-4" />
+                <Button variant="glass" size="sm" className="px-2 sm:px-3">
+                  <Save className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span className="hidden sm:inline ml-2">Save</span>
                 </Button>
               </DialogTrigger>
@@ -320,16 +320,17 @@ export default function EditorPage() {
               </DialogContent>
             </Dialog>
 
-            <Button variant="ghost" size="icon" onClick={handleDownload}>
-              <Download className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={handleDownload} className="h-8 w-8 sm:h-9 sm:w-9">
+              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
 
             <Button
               variant="ghost"
               size="icon"
               onClick={() => fileInputRef.current?.click()}
+              className="h-8 w-8 sm:h-9 sm:w-9"
             >
-              <Upload className="h-4 w-4" />
+              <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
             <input
               ref={fileInputRef}
@@ -339,16 +340,16 @@ export default function EditorPage() {
               accept=".py,.js,.java,.cpp,.c,.go,.rs,.kt"
             />
 
-            <Button variant="ghost" size="icon" onClick={handleCopy}>
-              <Copy className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={handleCopy} className="hidden xs:flex h-8 w-8 sm:h-9 sm:w-9">
+              <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
 
-            <Button variant="ghost" size="icon" onClick={handleClear} title="Clear code">
-              <Trash2 className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={handleClear} title="Clear code" className="hidden xs:flex h-8 w-8 sm:h-9 sm:w-9">
+              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
 
-            <Button variant="ghost" size="icon" onClick={handleReset} title="Reset to template">
-              <RotateCcw className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={handleReset} title="Reset to template" className="h-8 w-8 sm:h-9 sm:w-9">
+              <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
@@ -379,30 +380,30 @@ export default function EditorPage() {
           </div>
 
           {/* Right Panel: Input & Output */}
-          <div className="lg:w-[400px] border-t lg:border-t-0 lg:border-l border-border bg-card/50 flex flex-col">
+          <div className="lg:w-[350px] xl:w-[400px] border-t lg:border-t-0 lg:border-l border-border bg-card/50 flex flex-col">
             {/* User Input Section */}
             <div className="border-b border-border">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-                <Terminal className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Input (stdin)</span>
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
+                <Terminal className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-xs sm:text-sm font-medium">Input (stdin)</span>
               </div>
-              <div className="p-4">
+              <div className="p-3 sm:p-4">
                 <Textarea
                   placeholder="Enter input for your program..."
                   value={stdin}
                   onChange={(e) => setStdin(e.target.value)}
-                  className="font-mono text-sm resize-none h-[100px]"
+                  className="font-mono text-xs sm:text-sm resize-none h-[80px] sm:h-[100px]"
                 />
               </div>
             </div>
 
             {/* Output Panel */}
-            <div className="flex-1 flex flex-col min-h-[200px]">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+            <div className="flex-1 flex flex-col min-h-[150px] sm:min-h-[200px]">
+              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
                 <div className="w-2 h-2 rounded-full bg-accent" />
-                <span className="text-sm font-medium">Output</span>
+                <span className="text-xs sm:text-sm font-medium">Output</span>
               </div>
-              <div className="flex-1 p-4 font-mono text-sm overflow-auto">
+              <div className="flex-1 p-3 sm:p-4 font-mono text-xs sm:text-sm overflow-auto">
                 {output ? (
                   <pre className="text-foreground whitespace-pre-wrap">
                     {output}
