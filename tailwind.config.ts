@@ -70,7 +70,7 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Space Grotesk',
+  				'Source Sans Pro',
   				'ui-sans-serif',
   				'system-ui',
   				'-apple-system',
@@ -83,7 +83,7 @@ export default {
   				'sans-serif'
   			],
   			mono: [
-  				'Space Mono',
+  				'Source Code Pro',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
@@ -94,7 +94,7 @@ export default {
   				'monospace'
   			],
   			serif: [
-  				'Lora',
+  				'Source Serif Pro',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -147,7 +147,8 @@ export default {
   		},
   		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-  			'grid-pattern': 'url(\\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.03' stroke-width='1'%3E%3Cpath d='M0 0h60v60H0z'/%3E%3C/g%3E%3C/svg%3E\\")'
+  			'grid-pattern': 'url(\\\\"data:image/svg+xml,%3Csvg xmlns=',
+  			http: '
   		},
   		boxShadow: {
   			'2xs': 'var(--shadow-2xs)',
