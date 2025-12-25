@@ -14,46 +14,24 @@
   :root {
     --background: 60 4% 95%;
     --foreground: 24 9% 10%;
-
     --card: 60 9% 97%;
     --card-foreground: 24 9% 10%;
-
     --popover: 20 5% 90%;
     --popover-foreground: 24 9% 10%;
-
     --primary: 37 92% 50%;
     --primary-foreground: 47 100% 96%;
-
     --secondary: 24 5% 44%;
     --secondary-foreground: 60 9% 97%;
-
     --muted: 23 5% 82%;
     --muted-foreground: 24 9% 10%;
-
     --accent: 47 100% 96%;
     --accent-foreground: 37 92% 50%;
-
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 85% 97%;
-
     --border: 23 5% 82%;
     --input: 23 5% 82%;
     --ring: 37 92% 50%;
-
     --radius: 1rem;
-
-    --code-bg: 220 20% 97%;
-    --code-line: 220 14% 96%;
-    --code-highlight: 187 94% 95%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(187, 94%, 43%), hsl(160, 84%, 39%));
-    --gradient-accent: linear-gradient(135deg, hsl(160, 84%, 39%), hsl(187, 94%, 43%));
-    --gradient-surface: linear-gradient(180deg, hsl(210, 20%, 98%), hsl(210, 20%, 95%));
-
-    --shadow-glow: 0 0 40px hsl(187 94% 43% / 0.15);
-    --shadow-card: 0 4px 20px hsl(222 47% 11% / 0.08);
-    --shadow-elevated: 0 8px 40px hsl(222 47% 11% / 0.12);
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 24 9% 10%;
     --sidebar-primary: 37 92% 50%;
@@ -68,62 +46,28 @@
     --chart-4: 37 92% 50%;
     --chart-5: 24 5% 44%;
     --sidebar: 60 9% 97%;
-    --font-sans: 'Source Sans Pro', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
-    --font-serif: 'Source Serif Pro', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-mono: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
-    --tracking-normal: 0em;
-    --spacing: 0.25rem;
   }
 
   .dark {
     --background: 24 9% 10%;
     --foreground: 60 9% 97%;
-
     --card: 12 6% 15%;
     --card-foreground: 60 9% 97%;
-
     --popover: 30 6% 25%;
     --popover-foreground: 60 9% 97%;
-
     --primary: 43 96% 56%;
     --primary-foreground: 20 91% 14%;
-
     --secondary: 24 5% 44%;
     --secondary-foreground: 60 9% 97%;
-
     --muted: 24 5% 44%;
     --muted-foreground: 60 9% 97%;
-
     --accent: 25 83% 14%;
     --accent-foreground: 47 95% 53%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 85% 97%;
-
     --border: 33 5% 32%;
     --input: 33 5% 32%;
     --ring: 43 96% 56%;
-
-    --code-bg: 222 47% 5%;
-    --code-line: 222 47% 7%;
-    --code-highlight: 187 94% 43% / 0.1;
-
-    --gradient-primary: linear-gradient(135deg, hsl(187, 94%, 43%), hsl(160, 84%, 39%));
-    --gradient-accent: linear-gradient(135deg, hsl(160, 84%, 39%), hsl(187, 94%, 43%));
-    --gradient-surface: linear-gradient(180deg, hsl(222, 47%, 8%), hsl(222, 47%, 6%));
-
-    --shadow-glow: 0 0 60px hsl(187 94% 43% / 0.2);
-    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.3);
-    --shadow-elevated: 0 8px 40px hsl(0 0% 0% / 0.4);
-
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 60 9% 97%;
     --sidebar-primary: 43 96% 56%;
@@ -139,18 +83,8 @@
     --chart-5: 33 5% 32%;
     --sidebar: 12 6% 15%;
     --radius: 0rem;
-    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
-    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
-    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
-    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -161,7 +95,6 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -174,17 +107,12 @@
     @apply hover:bg-card/90 hover:border-primary/30 transition-all duration-300;
   }
 
-  .glow-primary {
-    box-shadow: var(--shadow-glow);
-  }
-
   .gradient-text {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-primary);
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
   }
 
   .gradient-bg {
-    background-image: var(--gradient-primary);
+    @apply bg-gradient-to-r from-primary to-accent;
   }
 
   .code-font {
@@ -193,10 +121,6 @@
 
   .animate-float {
     animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 2s ease-in-out infinite;
   }
 
   .animate-slide-up {
@@ -213,11 +137,6 @@
   50% { transform: translateY(-20px); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px hsl(187 94% 43% / 0.2); }
-  50% { box-shadow: 0 0 40px hsl(187 94% 43% / 0.4); }
-}
-
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -228,7 +147,6 @@
   to { opacity: 1; }
 }
 
-/* Monaco Editor Customization */
 .monaco-editor {
   border-radius: var(--radius);
 }
@@ -237,20 +155,20 @@
   background: transparent !important;
 }
 
-/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted/30;
+  background: hsl(var(--muted) / 0.3);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
+  background: hsl(var(--muted-foreground) / 0.5);
 }
