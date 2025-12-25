@@ -9,9 +9,10 @@ import {
   RotateCcw,
   Save,
   Terminal,
+  Trash2,
   Upload,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,6 +59,23 @@ export default function EditorPage() {
   const [fileName, setFileName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load file from sessionStorage if coming from dashboard
+  useEffect(() => {
+    const openFile = sessionStorage.getItem('openFile');
+    if (openFile) {
+      try {
+        const file = JSON.parse(openFile);
+        const lang = languages.find(l => l.name === file.language) || languages[0];
+        setSelectedLanguage(lang);
+        setCode(file.code || lang.template);
+        setFileName(file.name || "");
+        sessionStorage.removeItem('openFile');
+      } catch (e) {
+        console.error('Error loading file:', e);
+      }
+    }
+  }, []);
 
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
@@ -157,6 +175,11 @@ export default function EditorPage() {
     setOutput("");
     setStdin("");
     toast.info("Editor reset to default");
+  };
+
+  const handleClear = () => {
+    setCode("");
+    toast.info("Code cleared");
   };
 
   return (
@@ -275,7 +298,11 @@ export default function EditorPage() {
               <Copy className="h-4 w-4" />
             </Button>
 
-            <Button variant="ghost" size="icon" onClick={handleReset}>
+            <Button variant="ghost" size="icon" onClick={handleClear} title="Clear code">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+
+            <Button variant="ghost" size="icon" onClick={handleReset} title="Reset to template">
               <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
