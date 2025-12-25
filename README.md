@@ -8,7 +8,8 @@ CloudCode is a modern, cloud-powered online coding platform that enables develop
 
 ## 📸 Preview
 
-![CloudCode Hero Section](assets/hero.png)
+![CloudCode UI](./assets/hero.png)
+
 
 > A clean, professional, and developer-friendly cloud IDE interface.
 
