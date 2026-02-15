@@ -1,9 +1,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 // Language to Piston runtime mapping
@@ -25,11 +26,34 @@ serve(async (req) => {
   }
 
   try {
-    const { code, language, stdin } = await req.json();
+    // Validate authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required. Please sign in to execute code.' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    console.log(`Executing ${language} code...`);
-    console.log(`Code length: ${code?.length || 0} chars`);
-    console.log(`Stdin: ${stdin || 'none'}`);
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error: authError } = await supabase.auth.getClaims(token);
+    if (authError || !data?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired session. Please sign in again.' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = data.claims.sub;
+    console.log(`User ${userId} executing code...`);
+
+    const { code, language, stdin } = await req.json();
 
     if (!code || !language) {
       return new Response(
