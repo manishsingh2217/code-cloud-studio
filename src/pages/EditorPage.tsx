@@ -375,6 +375,9 @@ export default function EditorPage() {
                 roundedSelection: true,
                 cursorBlinking: "smooth",
                 cursorSmoothCaretAnimation: "on",
+                tabSize: 4,
+                insertSpaces: true,
+                wordWrap: "on",
               }}
             />
           </div>

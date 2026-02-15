@@ -77,7 +77,8 @@ export default function Auth() {
             toast.error(error.message);
           }
         } else {
-          toast.success("Account created! Please check your email to confirm.");
+          toast.success("Account created successfully!");
+          navigate('/dashboard');
         }
       } else {
         const { error } = await signIn(formData.email, formData.password);
