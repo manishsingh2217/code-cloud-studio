@@ -66,6 +66,7 @@ export function usePublicProjects() {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('is_featured', true)
         .order('created_at', { ascending: false });
       if (error) throw error;
       return data as Project[];
