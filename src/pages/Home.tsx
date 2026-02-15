@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -5,12 +6,15 @@ import {
   Cpu,
   FileCode2,
   GitBranch,
+  Image,
   Layers,
   Play,
+  Star,
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { usePublicProjects } from "@/hooks/useProjects";
 
 const features = [
   {
@@ -63,6 +67,13 @@ const languages = [
 ];
 
 export default function Home() {
+  const { data: projects = [] } = usePublicProjects();
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
+  const handleImageError = (id: string) => {
+    setFailedImages(prev => new Set(prev).add(id));
+  };
+
   return (
     <div className="relative overflow-hidden">
       {/* Hero Section */}
@@ -235,6 +246,68 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Projects Section */}
+      {projects.length > 0 && (
+        <section className="py-12 sm:py-24 px-4">
+          <div className="container">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-8 sm:mb-16"
+            >
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+                Our Projects
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
+                Check out what we've been building
+              </p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project, i) => (
+                <motion.a
+                  key={project.id}
+                  href={project.project_url || '#'}
+                  target={project.project_url ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="group rounded-2xl glass glass-hover overflow-hidden block"
+                >
+                  {/* Thumbnail */}
+                  <div className="w-full h-48 bg-muted/30 overflow-hidden">
+                    {project.thumbnail_url && !failedImages.has(project.id) ? (
+                      <img
+                        src={project.thumbnail_url}
+                        alt={project.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={() => handleImageError(project.id)}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <Image className="h-10 w-10" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold">{project.name}</h3>
+                      {project.is_featured && <Star className="h-4 w-4 text-primary fill-primary" />}
+                    </div>
+                    {project.description && (
+                      <p className="text-muted-foreground text-sm mt-2 line-clamp-2">{project.description}</p>
+                    )}
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-12 sm:py-24 px-4">

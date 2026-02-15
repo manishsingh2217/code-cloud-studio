@@ -17,6 +17,7 @@ const navItems = [
   { name: "Dashboard", path: "/dashboard" },
   { name: "Converter", path: "/converter" },
   { name: "Docs", path: "/docs" },
+  { name: "Admin", path: "/admin", authOnly: true },
 ];
 
 export function Navbar({ isDark, toggleTheme }: NavbarProps) {
@@ -44,7 +45,9 @@ export function Navbar({ isDark, toggleTheme }: NavbarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
+            {navItems
+              .filter((item) => !('authOnly' in item && item.authOnly) || user)
+              .map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -126,7 +129,9 @@ export function Navbar({ isDark, toggleTheme }: NavbarProps) {
             className="md:hidden py-4 border-t border-border/50"
           >
             <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
+              {navItems
+                .filter((item) => !('authOnly' in item && item.authOnly) || user)
+                .map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
