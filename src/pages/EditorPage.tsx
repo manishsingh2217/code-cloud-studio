@@ -12,7 +12,7 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,19 +71,21 @@ export default function EditorPage() {
   const initialState = getInitialState();
   const [selectedLanguage, setSelectedLanguage] = useState(initialState.lang);
   const [code, setCode] = useState(initialState.code);
+  const codeRef = useRef(initialState.code);
   const [output, setOutput] = useState("");
   const [stdin, setStdin] = useState(initialState.stdin);
   const [isRunning, setIsRunning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fileName, setFileName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const editorRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Persist editor state to localStorage
   useEffect(() => {
     const state = {
       languageId: selectedLanguage.id,
-      code,
+      code: codeRef.current,
       stdin,
     };
     localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
@@ -123,9 +125,18 @@ export default function EditorPage() {
 
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
+    codeRef.current = lang.template;
     setCode(lang.template);
     setOutput("");
   };
+
+  const handleEditorChange = useCallback((value: string | undefined) => {
+    codeRef.current = value || "";
+  }, []);
+
+  const handleEditorMount = useCallback((editor: any) => {
+    editorRef.current = editor;
+  }, []);
 
   const handleRun = async () => {
     setIsRunning(true);
@@ -134,7 +145,7 @@ export default function EditorPage() {
     try {
       const { data, error } = await supabase.functions.invoke('execute-code', {
         body: {
-          code,
+          code: codeRef.current,
           language: selectedLanguage.id,
           stdin,
         },
@@ -176,7 +187,7 @@ export default function EditorPage() {
     setIsSaving(true);
     const fullName = fileName.includes('.') ? fileName : `${fileName}.${selectedLanguage.extension}`;
     
-    const result = await saveFile(fullName, selectedLanguage.name, code);
+    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current);
     
     if (result) {
       toast.success("Code saved to cloud!");
@@ -187,7 +198,7 @@ export default function EditorPage() {
   };
 
   const handleDownload = () => {
-    const blob = new Blob([code], { type: "text/plain" });
+    const blob = new Blob([codeRef.current], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -202,7 +213,9 @@ export default function EditorPage() {
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        setCode(event.target?.result as string);
+        const content = event.target?.result as string;
+        codeRef.current = content;
+        setCode(content);
         toast.success("File uploaded!");
       };
       reader.readAsText(file);
@@ -210,11 +223,12 @@ export default function EditorPage() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(code);
+    navigator.clipboard.writeText(codeRef.current);
     toast.success("Code copied to clipboard!");
   };
 
   const handleReset = () => {
+    codeRef.current = selectedLanguage.template;
     setCode(selectedLanguage.template);
     setOutput("");
     setStdin("");
@@ -222,6 +236,7 @@ export default function EditorPage() {
   };
 
   const handleClear = () => {
+    codeRef.current = "";
     setCode("");
     toast.info("Code cleared");
   };
@@ -363,7 +378,8 @@ export default function EditorPage() {
               language={selectedLanguage.id}
               theme="vs-dark"
               value={code}
-              onChange={(value) => setCode(value || "")}
+              onChange={handleEditorChange}
+              onMount={handleEditorMount}
               options={{
                 fontSize: 14,
                 fontFamily: "JetBrains Mono, monospace",
