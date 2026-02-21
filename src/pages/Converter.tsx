@@ -1,6 +1,6 @@
 import Editor from "@monaco-editor/react";
 import { motion } from "framer-motion";
-import { ArrowLeftRight, ChevronDown, Copy, Download } from "lucide-react";
+import { ArrowLeftRight, ChevronDown, Copy, Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const languages = [
   { id: "python", name: "Python" },
@@ -22,55 +24,69 @@ const languages = [
   { id: "kotlin", name: "Kotlin" },
 ];
 
-const sampleConversions: Record<string, Record<string, { input: string; output: string }>> = {
-  python: {
-    javascript: {
-      input: `def greet(name):\n    return f"Hello, {name}!"\n\nresult = greet("World")\nprint(result)`,
-      output: `function greet(name) {\n    return \`Hello, \${name}!\`;\n}\n\nconst result = greet("World");\nconsole.log(result);`,
-    },
-    java: {
-      input: `def greet(name):\n    return f"Hello, {name}!"\n\nresult = greet("World")\nprint(result)`,
-      output: `public class Main {\n    public static String greet(String name) {\n        return "Hello, " + name + "!";\n    }\n\n    public static void main(String[] args) {\n        String result = greet("World");\n        System.out.println(result);\n    }\n}`,
-    },
-  },
-  javascript: {
-    python: {
-      input: `function greet(name) {\n    return \`Hello, \${name}!\`;\n}\n\nconst result = greet("World");\nconsole.log(result);`,
-      output: `def greet(name):\n    return f"Hello, {name}!"\n\nresult = greet("World")\nprint(result)`,
-    },
-  },
+const defaultCode: Record<string, string> = {
+  python: `def greet(name):\n    return f"Hello, {name}!"\n\nresult = greet("World")\nprint(result)`,
+  javascript: `function greet(name) {\n    return \`Hello, \${name}!\`;\n}\n\nconst result = greet("World");\nconsole.log(result);`,
+  java: `public class Main {\n    public static String greet(String name) {\n        return "Hello, " + name + "!";\n    }\n\n    public static void main(String[] args) {\n        System.out.println(greet("World"));\n    }\n}`,
+  cpp: `#include <iostream>\n#include <string>\n\nstd::string greet(const std::string& name) {\n    return "Hello, " + name + "!";\n}\n\nint main() {\n    std::cout << greet("World") << std::endl;\n    return 0;\n}`,
+  c: `#include <stdio.h>\n\nvoid greet(const char* name) {\n    printf("Hello, %s!\\n", name);\n}\n\nint main() {\n    greet("World");\n    return 0;\n}`,
+  go: `package main\n\nimport "fmt"\n\nfunc greet(name string) string {\n    return "Hello, " + name + "!"\n}\n\nfunc main() {\n    fmt.Println(greet("World"))\n}`,
+  rust: `fn greet(name: &str) -> String {\n    format!("Hello, {}!", name)\n}\n\nfn main() {\n    println!("{}", greet("World"));\n}`,
+  kotlin: `fun greet(name: String): String {\n    return "Hello, $name!"\n}\n\nfun main() {\n    println(greet("World"))\n}`,
 };
 
 export default function Converter() {
+  const { user } = useAuth();
   const [sourceLanguage, setSourceLanguage] = useState(languages[0]);
   const [targetLanguage, setTargetLanguage] = useState(languages[1]);
-  const [sourceCode, setSourceCode] = useState(
-    sampleConversions.python.javascript.input
-  );
-  const [targetCode, setTargetCode] = useState(
-    sampleConversions.python.javascript.output
-  );
+  const [sourceCode, setSourceCode] = useState(defaultCode.python);
+  const [targetCode, setTargetCode] = useState("// Converted code will appear here");
   const [isConverting, setIsConverting] = useState(false);
 
   const handleConvert = async () => {
+    if (!user) {
+      toast.error("Please sign in to convert code");
+      return;
+    }
+
+    if (!sourceCode.trim()) {
+      toast.error("Please enter some code to convert");
+      return;
+    }
+
+    if (sourceLanguage.id === targetLanguage.id) {
+      toast.error("Source and target languages must be different");
+      return;
+    }
+
     setIsConverting(true);
     setTargetCode("Converting...");
 
-    // Simulate conversion (in production, this would call an AI backend)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const { data, error } = await supabase.functions.invoke('convert-code', {
+        body: {
+          code: sourceCode,
+          sourceLanguage: sourceLanguage.name,
+          targetLanguage: targetLanguage.name,
+        },
+      });
 
-    // Check if we have a sample conversion
-    const conversion = sampleConversions[sourceLanguage.id]?.[targetLanguage.id];
-    if (conversion) {
-      setTargetCode(conversion.output);
-    } else {
-      setTargetCode(
-        `// Converted from ${sourceLanguage.name} to ${targetLanguage.name}\n// (AI conversion would happen here)\n\n${sourceCode}`
-      );
+      if (error) {
+        setTargetCode(`// Error: ${error.message}`);
+        toast.error("Conversion failed");
+      } else if (data.error) {
+        setTargetCode(`// Error: ${data.error}`);
+        toast.error("Conversion failed");
+      } else {
+        setTargetCode(data.convertedCode || "// No output");
+        toast.success("Code converted successfully!");
+      }
+    } catch (err: any) {
+      setTargetCode(`// Error: ${err.message}`);
+      toast.error("Failed to convert code");
+    } finally {
+      setIsConverting(false);
     }
-
-    setIsConverting(false);
-    toast.success("Code converted successfully!");
   };
 
   const handleSwapLanguages = () => {
@@ -82,6 +98,11 @@ export default function Converter() {
     setTargetCode(tempCode);
   };
 
+  const handleSourceLanguageChange = (lang: typeof languages[0]) => {
+    setSourceLanguage(lang);
+    setSourceCode(defaultCode[lang.id] || "");
+  };
+
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
@@ -89,14 +110,8 @@ export default function Converter() {
 
   const handleDownload = (code: string, lang: string) => {
     const extensions: Record<string, string> = {
-      python: "py",
-      javascript: "js",
-      java: "java",
-      cpp: "cpp",
-      c: "c",
-      go: "go",
-      rust: "rs",
-      kotlin: "kt",
+      python: "py", javascript: "js", java: "java", cpp: "cpp",
+      c: "c", go: "go", rust: "rs", kotlin: "kt",
     };
     const blob = new Blob([code], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -136,7 +151,7 @@ export default function Converter() {
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.id}
-                    onClick={() => setSourceLanguage(lang)}
+                    onClick={() => handleSourceLanguageChange(lang)}
                   >
                     {lang.name}
                   </DropdownMenuItem>
@@ -246,10 +261,19 @@ export default function Converter() {
               variant="hero"
               size="xl"
               onClick={handleConvert}
-              disabled={isConverting}
+              disabled={isConverting || !user}
               className="min-w-[200px]"
             >
-              {isConverting ? "Converting..." : "Convert Code"}
+              {isConverting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Converting...
+                </>
+              ) : !user ? (
+                "Sign in to convert"
+              ) : (
+                "Convert Code"
+              )}
             </Button>
           </div>
         </motion.div>

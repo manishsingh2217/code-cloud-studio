@@ -2,3 +2,6 @@ project_id = "gqjrljwnpdyddxzbexfp"
 
 [functions.execute-code]
 verify_jwt = false
+
+[functions.convert-code]
+verify_jwt = false
