@@ -41,17 +41,15 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data, error: authError } = await supabase.auth.getClaims(token);
-    if (authError || !data?.claims) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'Invalid or expired session. Please sign in again.' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const userId = data.claims.sub;
-    console.log(`User ${userId} executing code...`);
+    console.log(`User ${user.id} executing code...`);
 
     const { code, language, stdin } = await req.json();
 
