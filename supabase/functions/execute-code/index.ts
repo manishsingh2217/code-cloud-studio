@@ -7,20 +7,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Language to Piston runtime mapping
-const languageMap: Record<string, { language: string; version: string }> = {
-  python: { language: 'python', version: '3.10.0' },
-  javascript: { language: 'javascript', version: '18.15.0' },
-  java: { language: 'java', version: '15.0.2' },
-  cpp: { language: 'c++', version: '10.2.0' },
-  c: { language: 'c', version: '10.2.0' },
-  go: { language: 'go', version: '1.16.2' },
-  rust: { language: 'rust', version: '1.68.2' },
-  kotlin: { language: 'kotlin', version: '1.8.20' },
+// Language to Judge0 language_id mapping
+const languageMap: Record<string, number> = {
+  python: 71,      // Python 3
+  javascript: 63,  // JavaScript (Node.js)
+  java: 62,        // Java
+  cpp: 54,         // C++ (GCC)
+  c: 50,           // C (GCC)
+  go: 60,          // Go
+  rust: 73,        // Rust
+  kotlin: 78,      // Kotlin
 };
 
+const JUDGE0_API = 'https://ce.judge0.com';
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -60,80 +61,76 @@ serve(async (req) => {
       );
     }
 
-    const langConfig = languageMap[language];
-    if (!langConfig) {
+    const languageId = languageMap[language];
+    if (!languageId) {
       return new Response(
         JSON.stringify({ error: `Unsupported language: ${language}` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Use Piston API for code execution
-    const pistonResponse = await fetch('https://emkc.org/api/v2/piston/execute', {
+    // Submit code to Judge0 CE with wait=true to get result immediately
+    const submitResponse = await fetch(`${JUDGE0_API}/submissions?base64_encoded=false&wait=true`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        language: langConfig.language,
-        version: langConfig.version,
-        files: [
-          {
-            name: language === 'java' ? 'Main.java' : `main.${language}`,
-            content: code,
-          },
-        ],
+        source_code: code,
+        language_id: languageId,
         stdin: stdin || '',
-        compile_timeout: 10000,
-        run_timeout: 5000,
       }),
     });
 
-    if (!pistonResponse.ok) {
-      const errorText = await pistonResponse.text();
-      console.error('Piston API error:', errorText);
+    if (!submitResponse.ok) {
+      const errorText = await submitResponse.text();
+      console.error('Judge0 API error:', errorText);
       return new Response(
         JSON.stringify({ error: 'Code execution service unavailable', details: errorText }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const result = await pistonResponse.json();
-    console.log('Piston result:', JSON.stringify(result));
+    const result = await submitResponse.json();
+    console.log('Judge0 result status:', result.status?.description);
 
-    // Combine compile and run output
+    // Build output from Judge0 response
     let output = '';
     let hasError = false;
 
-    if (result.compile && result.compile.stderr) {
-      output += result.compile.stderr;
+    if (result.compile_output) {
+      output += result.compile_output;
       hasError = true;
     }
 
-    if (result.run) {
-      if (result.run.stdout) {
-        output += result.run.stdout;
-      }
-      if (result.run.stderr) {
-        output += result.run.stderr;
-        hasError = true;
-      }
-      if (result.run.signal === 'SIGKILL') {
-        output += '\n[Process killed - timeout or memory limit exceeded]';
-        hasError = true;
-      }
+    if (result.stdout) {
+      output += result.stdout;
     }
 
-    if (!output && result.message) {
-      output = result.message;
+    if (result.stderr) {
+      output += result.stderr;
       hasError = true;
+    }
+
+    // Check for time limit / memory limit exceeded
+    if (result.status?.id === 5) {
+      output += '\n[Time Limit Exceeded]';
+      hasError = true;
+    } else if (result.status?.id === 6) {
+      output += '\n[Compilation Error]';
+      hasError = true;
+    } else if (result.status?.id > 6) {
+      output += `\n[${result.status?.description || 'Runtime Error'}]`;
+      hasError = true;
+    }
+
+    if (result.message) {
+      output += result.message;
     }
 
     return new Response(
-      JSON.stringify({ 
-        output: output || 'No output', 
-        success: !hasError,
-        exitCode: result.run?.code || 0
+      JSON.stringify({
+        output: output || 'No output',
+        success: result.status?.id === 3, // 3 = Accepted (successful run)
+        exitCode: result.exit_code || 0,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
