@@ -152,8 +152,11 @@ export default function EditorPage() {
       });
 
       if (error) {
-        setOutput(`Error: ${error.message}`);
-        toast.error("Execution failed");
+        const msg = error.message?.includes('non-2xx') 
+          ? 'Please sign in to run code.' 
+          : error.message;
+        setOutput(`Error: ${msg}`);
+        toast.error(msg);
       } else if (data.error) {
         setOutput(`Error: ${data.error}`);
         toast.error("Execution failed");
