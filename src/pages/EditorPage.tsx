@@ -378,7 +378,7 @@ export default function EditorPage() {
               height="100%"
               language={selectedLanguage.id}
               theme="vs-dark"
-              value={code}
+              defaultValue={code}
               onChange={handleEditorChange}
               onMount={handleEditorMount}
               options={{
