@@ -216,7 +216,7 @@ export default function EditorPage() {
       reader.onload = (event) => {
         const content = event.target?.result as string;
         codeRef.current = content;
-        setCode(content);
+        editorRef.current?.setValue(content);
         toast.success("File uploaded!");
       };
       reader.readAsText(file);
