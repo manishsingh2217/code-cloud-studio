@@ -70,7 +70,7 @@ export default function EditorPage() {
 
   const initialState = getInitialState();
   const [selectedLanguage, setSelectedLanguage] = useState(initialState.lang);
-  const [code, setCode] = useState(initialState.code);
+  const [code] = useState(initialState.code);
   const codeRef = useRef(initialState.code);
   const [output, setOutput] = useState("");
   const [stdin, setStdin] = useState(initialState.stdin);
