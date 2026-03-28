@@ -230,7 +230,7 @@ export default function EditorPage() {
 
   const handleReset = () => {
     codeRef.current = selectedLanguage.template;
-    setCode(selectedLanguage.template);
+    editorRef.current?.setValue(selectedLanguage.template);
     setOutput("");
     setStdin("");
     toast.info("Editor reset to default");
