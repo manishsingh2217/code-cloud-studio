@@ -89,7 +89,7 @@ export default function EditorPage() {
       stdin,
     };
     localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
-  }, [selectedLanguage, code, stdin]);
+  }, [selectedLanguage, stdin]);
 
   // Load file from sessionStorage if coming from dashboard
   useEffect(() => {
