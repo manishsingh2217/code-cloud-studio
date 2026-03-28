@@ -126,7 +126,7 @@ export default function EditorPage() {
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
     codeRef.current = lang.template;
-    setCode(lang.template);
+    editorRef.current?.setValue(lang.template);
     setOutput("");
   };
 
