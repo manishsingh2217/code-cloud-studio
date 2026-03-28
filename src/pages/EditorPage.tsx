@@ -99,7 +99,8 @@ export default function EditorPage() {
         const file = JSON.parse(openFile);
         const lang = languages.find(l => l.name === file.language) || languages[0];
         setSelectedLanguage(lang);
-        setCode(file.code || lang.template);
+        codeRef.current = file.code || lang.template;
+        editorRef.current?.setValue(codeRef.current);
         setFileName(file.name || "");
         sessionStorage.removeItem('openFile');
       } catch (e) {
