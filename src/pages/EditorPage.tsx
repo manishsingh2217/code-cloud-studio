@@ -238,7 +238,7 @@ export default function EditorPage() {
 
   const handleClear = () => {
     codeRef.current = "";
-    setCode("");
+    editorRef.current?.setValue("");
     toast.info("Code cleared");
   };
 
