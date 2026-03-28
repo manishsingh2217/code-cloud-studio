@@ -70,7 +70,7 @@ export default function EditorPage() {
 
   const initialState = getInitialState();
   const [selectedLanguage, setSelectedLanguage] = useState(initialState.lang);
-  const [code, setCode] = useState(initialState.code);
+  const [code] = useState(initialState.code);
   const codeRef = useRef(initialState.code);
   const [output, setOutput] = useState("");
   const [stdin, setStdin] = useState(initialState.stdin);
@@ -89,7 +89,7 @@ export default function EditorPage() {
       stdin,
     };
     localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
-  }, [selectedLanguage, code, stdin]);
+  }, [selectedLanguage, stdin]);
 
   // Load file from sessionStorage if coming from dashboard
   useEffect(() => {
@@ -99,7 +99,8 @@ export default function EditorPage() {
         const file = JSON.parse(openFile);
         const lang = languages.find(l => l.name === file.language) || languages[0];
         setSelectedLanguage(lang);
-        setCode(file.code || lang.template);
+        codeRef.current = file.code || lang.template;
+        editorRef.current?.setValue(codeRef.current);
         setFileName(file.name || "");
         sessionStorage.removeItem('openFile');
       } catch (e) {
@@ -126,7 +127,7 @@ export default function EditorPage() {
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
     codeRef.current = lang.template;
-    setCode(lang.template);
+    editorRef.current?.setValue(lang.template);
     setOutput("");
   };
 
@@ -215,7 +216,7 @@ export default function EditorPage() {
       reader.onload = (event) => {
         const content = event.target?.result as string;
         codeRef.current = content;
-        setCode(content);
+        editorRef.current?.setValue(content);
         toast.success("File uploaded!");
       };
       reader.readAsText(file);
@@ -229,7 +230,7 @@ export default function EditorPage() {
 
   const handleReset = () => {
     codeRef.current = selectedLanguage.template;
-    setCode(selectedLanguage.template);
+    editorRef.current?.setValue(selectedLanguage.template);
     setOutput("");
     setStdin("");
     toast.info("Editor reset to default");
@@ -237,7 +238,7 @@ export default function EditorPage() {
 
   const handleClear = () => {
     codeRef.current = "";
-    setCode("");
+    editorRef.current?.setValue("");
     toast.info("Code cleared");
   };
 
@@ -377,7 +378,7 @@ export default function EditorPage() {
               height="100%"
               language={selectedLanguage.id}
               theme="vs-dark"
-              value={code}
+              defaultValue={code}
               onChange={handleEditorChange}
               onMount={handleEditorMount}
               options={{
