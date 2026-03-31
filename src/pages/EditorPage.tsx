@@ -312,6 +312,57 @@ export default function EditorPage() {
                 </DialogHeader>
                 <div className="space-y-4 pt-4">
                   <div className="space-y-2">
+                    <Label htmlFor="folder">Folder</Label>
+                    <div className="flex gap-2">
+                      <select
+                        id="folder"
+                        value={folderPath}
+                        onChange={(e) => setFolderPath(e.target.value)}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <option value="/">/ (Root)</option>
+                        {getFolders().map((f) => (
+                          <option key={f} value={f}>{f}</option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowNewFolder(!showNewFolder)}
+                        title="Create new folder"
+                      >
+                        <FolderPlus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {showNewFolder && (
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="New folder name"
+                          value={newFolderName}
+                          onChange={(e) => setNewFolderName(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="glass"
+                          size="sm"
+                          onClick={() => {
+                            if (newFolderName.trim()) {
+                              const path = folderPath === '/'
+                                ? `/${newFolderName.trim()}`
+                                : `${folderPath}/${newFolderName.trim()}`;
+                              setFolderPath(path);
+                              setNewFolderName("");
+                              setShowNewFolder(false);
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="filename">File Name</Label>
                     <Input
                       id="filename"
