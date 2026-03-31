@@ -50,7 +50,7 @@ export function useUserFiles() {
     fetchFiles();
   }, [user]);
 
-  const saveFile = async (name: string, language: string, code: string, existingId?: string) => {
+  const saveFile = async (name: string, language: string, code: string, existingId?: string, folderPath: string = '/') => {
     if (!user) {
       toast.error('Please sign in to save files');
       return null;
@@ -62,7 +62,7 @@ export function useUserFiles() {
       if (existingId) {
         const { data, error } = await supabase
           .from('user_files')
-          .update({ name, language, code, size_bytes: sizeBytes })
+          .update({ name, language, code, size_bytes: sizeBytes, folder_path: folderPath })
           .eq('id', existingId)
           .select()
           .single();
@@ -79,6 +79,7 @@ export function useUserFiles() {
             language,
             code,
             size_bytes: sizeBytes,
+            folder_path: folderPath,
           })
           .select()
           .single();
@@ -87,6 +88,34 @@ export function useUserFiles() {
         await fetchFiles();
         return data as UserFile;
       }
+    } catch (error: any) {
+      console.error('Error saving file:', error);
+      toast.error(error.message || 'Failed to save file');
+      return null;
+    }
+  };
+
+  const createFolder = (folderPath: string) => {
+    // Folders are virtual - they exist when files reference them
+    // This is a no-op but we keep it for UX consistency
+    toast.success(`Folder "${folderPath}" created`);
+  };
+
+  const getFolders = (): string[] => {
+    const folderSet = new Set<string>();
+    files.forEach(file => {
+      if (file.folder_path && file.folder_path !== '/') {
+        // Add this folder and all parent folders
+        const parts = file.folder_path.split('/').filter(Boolean);
+        let current = '';
+        parts.forEach(part => {
+          current += '/' + part;
+          folderSet.add(current);
+        });
+      }
+    });
+    return Array.from(folderSet).sort();
+  };
     } catch (error: any) {
       console.error('Error saving file:', error);
       toast.error(error.message || 'Failed to save file');
