@@ -391,7 +391,7 @@ export default function EditorPage() {
                 lineNumbers: "on",
                 roundedSelection: true,
                 cursorBlinking: "smooth",
-                cursorSmoothCaretAnimation: "on",
+                cursorSmoothCaretAnimation: "off",
                 tabSize: 4,
                 insertSpaces: true,
                 wordWrap: "on",
