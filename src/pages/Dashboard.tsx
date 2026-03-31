@@ -251,13 +251,38 @@ export default function Dashboard() {
             </DropdownMenu>
           </div>
 
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center gap-1 mb-4 text-sm flex-wrap">
+            <button
+              onClick={() => setCurrentFolder("/")}
+              className="text-primary hover:underline font-medium"
+            >
+              Root
+            </button>
+            {currentFolder !== "/" &&
+              currentFolder.split("/").filter(Boolean).map((part, i, arr) => {
+                const path = "/" + arr.slice(0, i + 1).join("/");
+                return (
+                  <span key={path} className="flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                    <button
+                      onClick={() => setCurrentFolder(path)}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {part}
+                    </button>
+                  </span>
+                );
+              })}
+          </div>
+
           {/* Loading State */}
           {loading ? (
             <div className="text-center py-20">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
               <p className="text-muted-foreground mt-4">Loading your files...</p>
             </div>
-          ) : filteredFiles.length > 0 ? (
+          ) : (subFolders.length > 0 || filteredFiles.length > 0) ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredFiles.map((file, i) => (
                 <motion.div
