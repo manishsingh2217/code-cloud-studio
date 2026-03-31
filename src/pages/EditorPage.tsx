@@ -191,7 +191,7 @@ export default function EditorPage() {
     setIsSaving(true);
     const fullName = fileName.includes('.') ? fileName : `${fileName}.${selectedLanguage.extension}`;
     
-    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current);
+    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, undefined, folderPath);
     
     if (result) {
       toast.success("Code saved to cloud!");
