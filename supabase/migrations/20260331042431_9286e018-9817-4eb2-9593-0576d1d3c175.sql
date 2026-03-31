@@ -1,0 +1,1 @@
+ALTER TABLE public.user_files ADD COLUMN folder_path text NOT NULL DEFAULT '/';
