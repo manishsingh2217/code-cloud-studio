@@ -56,6 +56,7 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterLanguage, setFilterLanguage] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [currentFolder, setCurrentFolder] = useState("/");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredFiles = files.filter((file) => {
