@@ -62,8 +62,25 @@ export default function Dashboard() {
   const filteredFiles = files.filter((file) => {
     const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = !filterLanguage || file.language === filterLanguage;
-    return matchesSearch && matchesFilter;
+    const matchesFolder = (file.folder_path || '/') === currentFolder;
+    return matchesSearch && matchesFilter && matchesFolder;
   });
+
+  // Get subfolders of current folder
+  const subFolders = (() => {
+    const folderSet = new Set<string>();
+    files.forEach(file => {
+      const fp = file.folder_path || '/';
+      if (fp.startsWith(currentFolder) && fp !== currentFolder) {
+        const rest = fp.slice(currentFolder === '/' ? 1 : currentFolder.length + 1);
+        const nextPart = rest.split('/')[0];
+        if (nextPart) {
+          folderSet.add(currentFolder === '/' ? `/${nextPart}` : `${currentFolder}/${nextPart}`);
+        }
+      }
+    });
+    return Array.from(folderSet).sort();
+  })();
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
