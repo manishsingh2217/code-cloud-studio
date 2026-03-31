@@ -51,7 +51,7 @@ const EDITOR_STATE_KEY = 'editor-state';
 
 export default function EditorPage() {
   const { user } = useAuth();
-  const { saveFile } = useUserFiles();
+  const { saveFile, getFolders } = useUserFiles();
   
   // Initialize state from localStorage
   const getInitialState = () => {
