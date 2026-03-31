@@ -95,34 +95,6 @@ export function useUserFiles() {
     }
   };
 
-  const createFolder = (folderPath: string) => {
-    // Folders are virtual - they exist when files reference them
-    // This is a no-op but we keep it for UX consistency
-    toast.success(`Folder "${folderPath}" created`);
-  };
-
-  const getFolders = (): string[] => {
-    const folderSet = new Set<string>();
-    files.forEach(file => {
-      if (file.folder_path && file.folder_path !== '/') {
-        // Add this folder and all parent folders
-        const parts = file.folder_path.split('/').filter(Boolean);
-        let current = '';
-        parts.forEach(part => {
-          current += '/' + part;
-          folderSet.add(current);
-        });
-      }
-    });
-    return Array.from(folderSet).sort();
-  };
-    } catch (error: any) {
-      console.error('Error saving file:', error);
-      toast.error(error.message || 'Failed to save file');
-      return null;
-    }
-  };
-
   const deleteFile = async (id: string) => {
     if (!user) return false;
 
@@ -142,13 +114,27 @@ export function useUserFiles() {
     }
   };
 
+  const getFolders = (): string[] => {
+    const folderSet = new Set<string>();
+    files.forEach(file => {
+      if (file.folder_path && file.folder_path !== '/') {
+        const parts = file.folder_path.split('/').filter(Boolean);
+        let current = '';
+        parts.forEach(part => {
+          current += '/' + part;
+          folderSet.add(current);
+        });
+      }
+    });
+    return Array.from(folderSet).sort();
+  };
+
   return {
     files,
     loading,
     totalSize,
     saveFile,
     deleteFile,
-    createFolder,
     getFolders,
     refetch: fetchFiles,
   };
