@@ -77,6 +77,9 @@ export default function EditorPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [folderPath, setFolderPath] = useState("/");
+  const [newFolderName, setNewFolderName] = useState("");
+  const [showNewFolder, setShowNewFolder] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const editorRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
