@@ -284,6 +284,32 @@ export default function Dashboard() {
             </div>
           ) : (subFolders.length > 0 || filteredFiles.length > 0) ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Folder cards */}
+              {subFolders.map((folder) => {
+                const folderName = folder.split('/').filter(Boolean).pop() || folder;
+                return (
+                  <motion.div
+                    key={folder}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass glass-hover rounded-xl p-5 cursor-pointer"
+                    onClick={() => setCurrentFolder(folder)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <FolderOpen className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{folderName}</h4>
+                        <span className="text-xs text-muted-foreground">
+                          {files.filter(f => (f.folder_path || '/').startsWith(folder)).length} files
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              {/* File cards */}
               {filteredFiles.map((file, i) => (
                 <motion.div
                   key={file.id}
