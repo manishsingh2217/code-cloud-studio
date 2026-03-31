@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
 import {
+  ChevronRight,
   Clock,
   Code2,
   FileCode,
   FileSearch,
+  Folder,
+  FolderOpen,
   Loader2,
   MoreVertical,
   Plus,
@@ -53,13 +56,31 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterLanguage, setFilterLanguage] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [currentFolder, setCurrentFolder] = useState("/");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filteredFiles = files.filter((file) => {
     const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = !filterLanguage || file.language === filterLanguage;
-    return matchesSearch && matchesFilter;
+    const matchesFolder = (file.folder_path || '/') === currentFolder;
+    return matchesSearch && matchesFilter && matchesFolder;
   });
+
+  // Get subfolders of current folder
+  const subFolders = (() => {
+    const folderSet = new Set<string>();
+    files.forEach(file => {
+      const fp = file.folder_path || '/';
+      if (fp.startsWith(currentFolder) && fp !== currentFolder) {
+        const rest = fp.slice(currentFolder === '/' ? 1 : currentFolder.length + 1);
+        const nextPart = rest.split('/')[0];
+        if (nextPart) {
+          folderSet.add(currentFolder === '/' ? `/${nextPart}` : `${currentFolder}/${nextPart}`);
+        }
+      }
+    });
+    return Array.from(folderSet).sort();
+  })();
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -230,14 +251,65 @@ export default function Dashboard() {
             </DropdownMenu>
           </div>
 
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center gap-1 mb-4 text-sm flex-wrap">
+            <button
+              onClick={() => setCurrentFolder("/")}
+              className="text-primary hover:underline font-medium"
+            >
+              Root
+            </button>
+            {currentFolder !== "/" &&
+              currentFolder.split("/").filter(Boolean).map((part, i, arr) => {
+                const path = "/" + arr.slice(0, i + 1).join("/");
+                return (
+                  <span key={path} className="flex items-center gap-1">
+                    <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                    <button
+                      onClick={() => setCurrentFolder(path)}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {part}
+                    </button>
+                  </span>
+                );
+              })}
+          </div>
+
           {/* Loading State */}
           {loading ? (
             <div className="text-center py-20">
               <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
               <p className="text-muted-foreground mt-4">Loading your files...</p>
             </div>
-          ) : filteredFiles.length > 0 ? (
+          ) : (subFolders.length > 0 || filteredFiles.length > 0) ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Folder cards */}
+              {subFolders.map((folder) => {
+                const folderName = folder.split('/').filter(Boolean).pop() || folder;
+                return (
+                  <motion.div
+                    key={folder}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass glass-hover rounded-xl p-5 cursor-pointer"
+                    onClick={() => setCurrentFolder(folder)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <FolderOpen className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{folderName}</h4>
+                        <span className="text-xs text-muted-foreground">
+                          {files.filter(f => (f.folder_path || '/').startsWith(folder)).length} files
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+              {/* File cards */}
               {filteredFiles.map((file, i) => (
                 <motion.div
                   key={file.id}

@@ -9,6 +9,7 @@ export interface UserFile {
   language: string;
   code: string;
   size_bytes: number;
+  folder_path: string;
   created_at: string;
   updated_at: string;
 }
@@ -49,7 +50,7 @@ export function useUserFiles() {
     fetchFiles();
   }, [user]);
 
-  const saveFile = async (name: string, language: string, code: string, existingId?: string) => {
+  const saveFile = async (name: string, language: string, code: string, existingId?: string, folderPath: string = '/') => {
     if (!user) {
       toast.error('Please sign in to save files');
       return null;
@@ -61,7 +62,7 @@ export function useUserFiles() {
       if (existingId) {
         const { data, error } = await supabase
           .from('user_files')
-          .update({ name, language, code, size_bytes: sizeBytes })
+          .update({ name, language, code, size_bytes: sizeBytes, folder_path: folderPath })
           .eq('id', existingId)
           .select()
           .single();
@@ -78,6 +79,7 @@ export function useUserFiles() {
             language,
             code,
             size_bytes: sizeBytes,
+            folder_path: folderPath,
           })
           .select()
           .single();
@@ -112,12 +114,28 @@ export function useUserFiles() {
     }
   };
 
+  const getFolders = (): string[] => {
+    const folderSet = new Set<string>();
+    files.forEach(file => {
+      if (file.folder_path && file.folder_path !== '/') {
+        const parts = file.folder_path.split('/').filter(Boolean);
+        let current = '';
+        parts.forEach(part => {
+          current += '/' + part;
+          folderSet.add(current);
+        });
+      }
+    });
+    return Array.from(folderSet).sort();
+  };
+
   return {
     files,
     loading,
     totalSize,
     saveFile,
     deleteFile,
+    getFolders,
     refetch: fetchFiles,
   };
 }

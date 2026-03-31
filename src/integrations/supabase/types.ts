@@ -84,6 +84,7 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          folder_path: string
           id: string
           language: string
           name: string
@@ -94,6 +95,7 @@ export type Database = {
         Insert: {
           code?: string
           created_at?: string
+          folder_path?: string
           id?: string
           language: string
           name: string
@@ -104,6 +106,7 @@ export type Database = {
         Update: {
           code?: string
           created_at?: string
+          folder_path?: string
           id?: string
           language?: string
           name?: string
