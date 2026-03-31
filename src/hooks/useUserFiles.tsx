@@ -148,6 +148,8 @@ export function useUserFiles() {
     totalSize,
     saveFile,
     deleteFile,
+    createFolder,
+    getFolders,
     refetch: fetchFiles,
   };
 }
