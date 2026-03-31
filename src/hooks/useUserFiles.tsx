@@ -9,6 +9,7 @@ export interface UserFile {
   language: string;
   code: string;
   size_bytes: number;
+  folder_path: string;
   created_at: string;
   updated_at: string;
 }
