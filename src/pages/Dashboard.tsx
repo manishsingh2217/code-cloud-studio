@@ -1,9 +1,12 @@
 import { motion } from "framer-motion";
 import {
+  ChevronRight,
   Clock,
   Code2,
   FileCode,
   FileSearch,
+  Folder,
+  FolderOpen,
   Loader2,
   MoreVertical,
   Plus,
