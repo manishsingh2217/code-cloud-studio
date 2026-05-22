@@ -438,14 +438,16 @@ export default function EditorPage() {
               onMount={handleEditorMount}
               options={{
                 fontSize: 14,
-                fontFamily: "JetBrains Mono, monospace",
+                fontFamily: "Menlo, Monaco, 'Courier New', monospace",
+                fontLigatures: false,
+                disableMonospaceOptimizations: true,
                 minimap: { enabled: false },
                 padding: { top: 16, bottom: 16 },
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
                 lineNumbers: "on",
                 roundedSelection: true,
-                cursorBlinking: "smooth",
+                cursorBlinking: "blink",
                 cursorSmoothCaretAnimation: "off",
                 tabSize: 4,
                 insertSpaces: true,
