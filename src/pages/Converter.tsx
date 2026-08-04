@@ -2,7 +2,6 @@ import Editor from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import { ArrowLeftRight, ChevronDown, Copy, Download, Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
-import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 
 const languages = [
   { id: "python", name: "Python" },
@@ -37,7 +35,6 @@ const defaultCode: Record<string, string> = {
 };
 
 export default function Converter() {
-  const { user, loading } = useAuth();
   const [sourceLanguage, setSourceLanguage] = useState(languages[0]);
   const [targetLanguage, setTargetLanguage] = useState(languages[1]);
   const [sourceCode, setSourceCode] = useState(defaultCode.python);
@@ -53,11 +50,6 @@ export default function Converter() {
 
 
   const handleConvert = async () => {
-    if (!user) {
-      toast.error("Please sign in to convert code");
-      return;
-    }
-
     if (!sourceCode.trim()) {
       toast.error("Please enter some code to convert");
       return;
@@ -131,18 +123,6 @@ export default function Converter() {
     URL.revokeObjectURL(url);
     toast.success("File downloaded!");
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
 
   return (
     <div className="min-h-screen bg-background py-6 sm:py-8 px-4">
@@ -284,7 +264,7 @@ export default function Converter() {
               variant="hero"
               size="xl"
               onClick={handleConvert}
-              disabled={isConverting || !user}
+              disabled={isConverting}
               className="min-w-[200px]"
             >
               {isConverting ? (
@@ -292,8 +272,6 @@ export default function Converter() {
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Converting...
                 </>
-              ) : !user ? (
-                "Sign in to convert"
               ) : (
                 "Convert Code"
               )}
