@@ -1,7 +1,8 @@
 import Editor from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import { ArrowLeftRight, ChevronDown, Copy, Download, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
