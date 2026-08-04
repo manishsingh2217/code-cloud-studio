@@ -71,7 +71,9 @@ export default function Auth() {
       if (isSignUp) {
         const { error } = await signUp(formData.email, formData.password);
         if (error) {
-          if (error.message.includes('already registered')) {
+          if (error.message.toLowerCase().includes('failed to fetch')) {
+            toast.error("Can't reach the server. Check your connection and try again.");
+          } else if (error.message.includes('already registered')) {
             toast.error("This email is already registered. Please sign in instead.");
           } else {
             toast.error(error.message);
@@ -83,7 +85,9 @@ export default function Auth() {
       } else {
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
+          if (error.message.toLowerCase().includes('failed to fetch')) {
+            toast.error("Can't reach the server. Check your connection and try again.");
+          } else if (error.message.includes('Invalid login credentials')) {
             toast.error("Invalid email or password. Please try again.");
           } else {
             toast.error(error.message);
@@ -94,7 +98,12 @@ export default function Auth() {
         }
       }
     } catch (err: any) {
-      toast.error(err.message || "An error occurred");
+      const msg = String(err?.message || "");
+      if (msg.toLowerCase().includes("fetch")) {
+        toast.error("Can't reach the server. Check your connection (or disable ad/tracker blockers) and try again.");
+      } else {
+        toast.error(msg || "An error occurred");
+      }
     } finally {
       setIsLoading(false);
     }

@@ -166,6 +166,9 @@ export default function EditorPage() {
       if (error) {
         setOutput(`Error: ${error.message}`);
         toast.error("Execution failed");
+      } else if (!data) {
+        setOutput("Error: No response from the execution service. Please try again.");
+        toast.error("Execution failed");
       } else if (data.error) {
         setOutput(`Error: ${data.error}`);
         toast.error("Execution failed");
