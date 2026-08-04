@@ -132,6 +132,18 @@ export default function Converter() {
     toast.success("File downloaded!");
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background py-6 sm:py-8 px-4">
       <div className="container max-w-7xl mx-auto">
