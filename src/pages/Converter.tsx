@@ -228,9 +228,10 @@ export default function Converter() {
                   theme="vs-dark"
                   value={sourceCode}
                   onChange={(value) => setSourceCode(value || "")}
+                  onMount={handleEditorMount}
                   options={{
                     fontSize: 14,
-                    fontFamily: "JetBrains Mono, monospace",
+                    fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                     minimap: { enabled: false },
                     padding: { top: 16, bottom: 16 },
                     scrollBeyondLastLine: false,
@@ -263,9 +264,10 @@ export default function Converter() {
                   language={targetLanguage.id}
                   theme="vs-dark"
                   value={targetCode}
+                  onMount={handleEditorMount}
                   options={{
                     fontSize: 14,
-                    fontFamily: "JetBrains Mono, monospace",
+                    fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                     minimap: { enabled: false },
                     padding: { top: 16, bottom: 16 },
                     scrollBeyondLastLine: false,
