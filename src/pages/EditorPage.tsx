@@ -139,8 +139,15 @@ export default function EditorPage() {
     codeRef.current = value || "";
   }, []);
 
-  const handleEditorMount = useCallback((editor: any) => {
+  const handleEditorMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
+    // Re-measure character widths once the web font has actually loaded,
+    // otherwise the caret drifts ahead of the typed characters.
+    if (typeof document !== "undefined" && (document as any).fonts?.ready) {
+      (document as any).fonts.ready.then(() => {
+        monaco?.editor?.remeasureFonts?.();
+      });
+    }
   }, []);
 
   const handleRun = async () => {
@@ -158,6 +165,9 @@ export default function EditorPage() {
 
       if (error) {
         setOutput(`Error: ${error.message}`);
+        toast.error("Execution failed");
+      } else if (!data) {
+        setOutput("Error: No response from the execution service. Please try again.");
         toast.error("Execution failed");
       } else if (data.error) {
         setOutput(`Error: ${data.error}`);
@@ -438,9 +448,8 @@ export default function EditorPage() {
               onMount={handleEditorMount}
               options={{
                 fontSize: 14,
-                fontFamily: "Menlo, Monaco, 'Courier New', monospace",
+                fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                 fontLigatures: false,
-                disableMonospaceOptimizations: true,
                 minimap: { enabled: false },
                 padding: { top: 16, bottom: 16 },
                 scrollBeyondLastLine: false,

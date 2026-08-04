@@ -1,7 +1,8 @@
 import Editor from "@monaco-editor/react";
 import { motion } from "framer-motion";
 import { ArrowLeftRight, ChevronDown, Copy, Download, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,12 +37,20 @@ const defaultCode: Record<string, string> = {
 };
 
 export default function Converter() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [sourceLanguage, setSourceLanguage] = useState(languages[0]);
   const [targetLanguage, setTargetLanguage] = useState(languages[1]);
   const [sourceCode, setSourceCode] = useState(defaultCode.python);
   const [targetCode, setTargetCode] = useState("// Converted code will appear here");
   const [isConverting, setIsConverting] = useState(false);
+
+  const handleEditorMount = useCallback((_editor: any, monaco: any) => {
+    if (typeof document !== "undefined" && (document as any).fonts?.ready) {
+      (document as any).fonts.ready.then(() => monaco?.editor?.remeasureFonts?.());
+    }
+  }, []);
+
+
 
   const handleConvert = async () => {
     if (!user) {
@@ -122,6 +131,18 @@ export default function Converter() {
     URL.revokeObjectURL(url);
     toast.success("File downloaded!");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background py-6 sm:py-8 px-4">
@@ -207,9 +228,10 @@ export default function Converter() {
                   theme="vs-dark"
                   value={sourceCode}
                   onChange={(value) => setSourceCode(value || "")}
+                  onMount={handleEditorMount}
                   options={{
                     fontSize: 14,
-                    fontFamily: "JetBrains Mono, monospace",
+                    fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                     minimap: { enabled: false },
                     padding: { top: 16, bottom: 16 },
                     scrollBeyondLastLine: false,
@@ -242,9 +264,10 @@ export default function Converter() {
                   language={targetLanguage.id}
                   theme="vs-dark"
                   value={targetCode}
+                  onMount={handleEditorMount}
                   options={{
                     fontSize: 14,
-                    fontFamily: "JetBrains Mono, monospace",
+                    fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                     minimap: { enabled: false },
                     padding: { top: 16, bottom: 16 },
                     scrollBeyondLastLine: false,
