@@ -37,12 +37,20 @@ const defaultCode: Record<string, string> = {
 };
 
 export default function Converter() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [sourceLanguage, setSourceLanguage] = useState(languages[0]);
   const [targetLanguage, setTargetLanguage] = useState(languages[1]);
   const [sourceCode, setSourceCode] = useState(defaultCode.python);
   const [targetCode, setTargetCode] = useState("// Converted code will appear here");
   const [isConverting, setIsConverting] = useState(false);
+
+  const handleEditorMount = useCallback((_editor: any, monaco: any) => {
+    if (typeof document !== "undefined" && (document as any).fonts?.ready) {
+      (document as any).fonts.ready.then(() => monaco?.editor?.remeasureFonts?.());
+    }
+  }, []);
+
+
 
   const handleConvert = async () => {
     if (!user) {
