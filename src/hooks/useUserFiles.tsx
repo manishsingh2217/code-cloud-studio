@@ -87,7 +87,7 @@ export function useUserFiles() {
       if (existingId) {
         const { data, error } = await supabase
           .from('user_files')
-          .update({ name, language, code, size_bytes: sizeBytes, folder_path: folderPath })
+          .update({ name: trimmedName, language, code, size_bytes: sizeBytes, folder_path: folderPath })
           .eq('id', existingId)
           .select()
           .single();
@@ -100,7 +100,7 @@ export function useUserFiles() {
           .from('user_files')
           .insert({
             user_id: user.id,
-            name,
+            name: trimmedName,
             language,
             code,
             size_bytes: sizeBytes,
