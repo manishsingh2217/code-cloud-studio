@@ -14,6 +14,10 @@ export interface UserFile {
   updated_at: string;
 }
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
+const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total per user
+const MAX_NAME_LENGTH = 255;
+
 export function useUserFiles() {
   const { user } = useAuth();
   const [files, setFiles] = useState<UserFile[]>([]);
@@ -56,13 +60,34 @@ export function useUserFiles() {
       return null;
     }
 
+    const trimmedName = name.trim();
+    if (!trimmedName || trimmedName.length > MAX_NAME_LENGTH) {
+      toast.error('Please provide a file name under 255 characters.');
+      return null;
+    }
+
+    const sizeBytes = new Blob([code]).size;
+
+    if (sizeBytes > MAX_FILE_SIZE) {
+      toast.error('File is too large. Maximum size is 10MB.');
+      return null;
+    }
+
+    const previousSize = existingId
+      ? files.find((f) => f.id === existingId)?.size_bytes || 0
+      : 0;
+    if (totalSize - previousSize + sizeBytes > MAX_TOTAL_SIZE) {
+      toast.error('Storage quota exceeded. Maximum is 100MB per account.');
+      return null;
+    }
+
     try {
-      const sizeBytes = new Blob([code]).size;
+
 
       if (existingId) {
         const { data, error } = await supabase
           .from('user_files')
-          .update({ name, language, code, size_bytes: sizeBytes, folder_path: folderPath })
+          .update({ name: trimmedName, language, code, size_bytes: sizeBytes, folder_path: folderPath })
           .eq('id', existingId)
           .select()
           .single();
@@ -75,7 +100,7 @@ export function useUserFiles() {
           .from('user_files')
           .insert({
             user_id: user.id,
-            name,
+            name: trimmedName,
             language,
             code,
             size_bytes: sizeBytes,
