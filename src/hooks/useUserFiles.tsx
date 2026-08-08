@@ -14,6 +14,10 @@ export interface UserFile {
   updated_at: string;
 }
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
+const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB total per user
+const MAX_NAME_LENGTH = 255;
+
 export function useUserFiles() {
   const { user } = useAuth();
   const [files, setFiles] = useState<UserFile[]>([]);
