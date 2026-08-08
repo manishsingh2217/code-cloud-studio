@@ -60,8 +60,29 @@ export function useUserFiles() {
       return null;
     }
 
+    const trimmedName = name.trim();
+    if (!trimmedName || trimmedName.length > MAX_NAME_LENGTH) {
+      toast.error('Please provide a file name under 255 characters.');
+      return null;
+    }
+
+    const sizeBytes = new Blob([code]).size;
+
+    if (sizeBytes > MAX_FILE_SIZE) {
+      toast.error('File is too large. Maximum size is 10MB.');
+      return null;
+    }
+
+    const previousSize = existingId
+      ? files.find((f) => f.id === existingId)?.size_bytes || 0
+      : 0;
+    if (totalSize - previousSize + sizeBytes > MAX_TOTAL_SIZE) {
+      toast.error('Storage quota exceeded. Maximum is 100MB per account.');
+      return null;
+    }
+
     try {
-      const sizeBytes = new Blob([code]).size;
+
 
       if (existingId) {
         const { data, error } = await supabase
