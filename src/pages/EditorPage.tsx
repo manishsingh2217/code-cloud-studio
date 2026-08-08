@@ -257,14 +257,14 @@ export default function EditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="h-[calc(100vh-4rem)] flex flex-col"
+        className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 py-3 sm:py-5 flex flex-col gap-3"
       >
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 border-b border-border glass">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 px-2 sm:px-3 py-2 rounded-xl border border-border glass">
           {/* Language Selector */}
           <div className="flex items-center gap-2 sm:gap-4">
             <DropdownMenu>
