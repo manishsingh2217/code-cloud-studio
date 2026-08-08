@@ -257,14 +257,14 @@ export default function EditorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="h-[calc(100vh-4rem)] flex flex-col"
+        className="mx-auto w-full max-w-[1400px] px-3 sm:px-6 py-3 sm:py-5 flex flex-col gap-3"
       >
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 px-2 sm:px-4 py-2 sm:py-3 border-b border-border glass">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 px-2 sm:px-3 py-2 rounded-xl border border-border glass">
           {/* Language Selector */}
           <div className="flex items-center gap-2 sm:gap-4">
             <DropdownMenu>
@@ -436,62 +436,66 @@ export default function EditorPage() {
         </div>
 
         {/* Editor & Output */}
-        <div className="flex-1 flex flex-col lg:flex-row">
+        <div className="flex flex-col lg:flex-row gap-3">
           {/* Editor */}
-          <div className="flex-1 min-h-[300px] lg:min-h-0">
-            <Editor
-              height="100%"
-              language={selectedLanguage.id}
-              theme="vs-dark"
-              defaultValue={code}
-              onChange={handleEditorChange}
-              onMount={handleEditorMount}
-              options={{
-                fontSize: 14,
-                fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
-                fontLigatures: false,
-                minimap: { enabled: false },
-                padding: { top: 16, bottom: 16 },
-                scrollBeyondLastLine: false,
-                automaticLayout: true,
-                lineNumbers: "on",
-                roundedSelection: true,
-                cursorBlinking: "blink",
-                cursorSmoothCaretAnimation: "off",
-                tabSize: 4,
-                insertSpaces: true,
-                wordWrap: "on",
-              }}
-            />
+          <div className="flex-1 min-w-0 rounded-xl border border-border overflow-hidden bg-card/50">
+            <div className="h-[45vh] min-h-[280px] max-h-[560px] lg:h-[calc(100vh-13rem)]">
+              <Editor
+                height="100%"
+                language={selectedLanguage.id}
+                theme="vs-dark"
+                defaultValue={code}
+                onChange={handleEditorChange}
+                onMount={handleEditorMount}
+                options={{
+                  fontSize: 13,
+                  fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
+                  fontLigatures: false,
+                  minimap: { enabled: false },
+                  padding: { top: 12, bottom: 12 },
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  lineNumbers: "on",
+                  lineNumbersMinChars: 3,
+                  roundedSelection: true,
+                  cursorBlinking: "blink",
+                  cursorSmoothCaretAnimation: "off",
+                  tabSize: 4,
+                  insertSpaces: true,
+                  wordWrap: "on",
+                  scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
+                }}
+              />
+            </div>
           </div>
 
           {/* Right Panel: Input & Output */}
-          <div className="lg:w-[350px] xl:w-[400px] border-t lg:border-t-0 lg:border-l border-border bg-card/50 flex flex-col">
+          <div className="lg:w-[320px] xl:w-[360px] shrink-0 rounded-xl border border-border bg-card/50 flex flex-col overflow-hidden lg:h-[calc(100vh-13rem)]">
             {/* User Input Section */}
             <div className="border-b border-border">
-              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
-                <Terminal className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-xs sm:text-sm font-medium">Input (stdin)</span>
+              <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
+                <Terminal className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-medium">Input (stdin)</span>
               </div>
-              <div className="p-3 sm:p-4">
+              <div className="p-3">
                 <Textarea
                   placeholder="Enter input for your program..."
                   value={stdin}
                   onChange={(e) => setStdin(e.target.value)}
-                  className="font-mono text-xs sm:text-sm resize-none h-[80px] sm:h-[100px]"
+                  className="font-mono text-xs resize-none h-[72px]"
                 />
               </div>
             </div>
 
             {/* Output Panel */}
-            <div className="flex-1 flex flex-col min-h-[150px] sm:min-h-[200px]">
-              <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
+            <div className="flex-1 flex flex-col min-h-[160px]">
+              <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
                 <div className="w-2 h-2 rounded-full bg-accent" />
-                <span className="text-xs sm:text-sm font-medium">Output</span>
+                <span className="text-xs font-medium">Output</span>
               </div>
-              <div className="flex-1 p-3 sm:p-4 font-mono text-xs sm:text-sm overflow-auto">
+              <div className="flex-1 p-3 font-mono text-xs overflow-auto">
                 {output ? (
-                  <pre className="text-foreground whitespace-pre-wrap">
+                  <pre className="text-foreground whitespace-pre-wrap break-words">
                     {output}
                   </pre>
                 ) : (
@@ -503,6 +507,7 @@ export default function EditorPage() {
             </div>
           </div>
         </div>
+
       </motion.div>
     </div>
   );
