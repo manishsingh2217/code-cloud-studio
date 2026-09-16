@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserFiles } from "@/hooks/useUserFiles";
+import { getFunctionErrorMessage } from "@/lib/functionError";
 
 const languages = [
   { id: "python", name: "Python", extension: "py", template: 'print("Hello, World!")' },
@@ -151,9 +152,14 @@ export default function EditorPage() {
   }, []);
 
   const handleRun = async () => {
+    if (!codeRef.current.trim()) {
+      toast.error("Write some code before running");
+      return;
+    }
+
     setIsRunning(true);
     setOutput("Running...\n");
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('execute-code', {
         body: {
@@ -164,25 +170,28 @@ export default function EditorPage() {
       });
 
       if (error) {
-        setOutput(`Error: ${error.message}`);
-        toast.error("Execution failed");
+        const message = await getFunctionErrorMessage(error);
+        setOutput(message);
+        toast.error(message);
       } else if (!data) {
-        setOutput("Error: No response from the execution service. Please try again.");
-        toast.error("Execution failed");
+        const message = "No response from the execution service. Please try again.";
+        setOutput(message);
+        toast.error(message);
       } else if (data.error) {
-        setOutput(`Error: ${data.error}`);
-        toast.error("Execution failed");
+        setOutput(data.error);
+        toast.error(data.error);
       } else {
         setOutput(data.output || "No output");
         if (data.success) {
           toast.success("Code executed successfully!");
         } else {
-          toast.warning("Execution completed with errors");
+          toast.warning("Finished with errors — check the output");
         }
       }
-    } catch (err: any) {
-      setOutput(`Error: ${err.message}`);
-      toast.error("Failed to execute code");
+    } catch (err: unknown) {
+      const message = await getFunctionErrorMessage(err);
+      setOutput(message);
+      toast.error(message);
     } finally {
       setIsRunning(false);
     }
@@ -439,7 +448,7 @@ export default function EditorPage() {
         <div className="flex flex-col lg:flex-row gap-3">
           {/* Editor */}
           <div className="flex-1 min-w-0 rounded-xl border border-border overflow-hidden bg-card/50">
-            <div className="h-[45vh] min-h-[280px] max-h-[560px] lg:h-[calc(100vh-13rem)]">
+            <div className="h-[45vh] min-h-[280px] max-h-[560px] lg:max-h-none lg:h-[calc(100vh-13rem)]">
               <Editor
                 height="100%"
                 language={selectedLanguage.id}
