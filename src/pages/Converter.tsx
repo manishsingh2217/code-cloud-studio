@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { getFunctionErrorMessage } from "@/lib/functionError";
 
 const languages = [
   { id: "python", name: "Python" },
@@ -61,7 +62,7 @@ export default function Converter() {
     }
 
     setIsConverting(true);
-    setTargetCode("Converting...");
+    setTargetCode("// Converting...");
 
     try {
       const { data, error } = await supabase.functions.invoke('convert-code', {
@@ -73,18 +74,24 @@ export default function Converter() {
       });
 
       if (error) {
-        setTargetCode(`// Error: ${error.message}`);
-        toast.error("Conversion failed");
+        const message = await getFunctionErrorMessage(error);
+        setTargetCode(`// ${message}`);
+        toast.error(message);
+      } else if (!data) {
+        const message = "No response from the conversion service. Please try again.";
+        setTargetCode(`// ${message}`);
+        toast.error(message);
       } else if (data.error) {
-        setTargetCode(`// Error: ${data.error}`);
-        toast.error("Conversion failed");
+        setTargetCode(`// ${data.error}`);
+        toast.error(data.error);
       } else {
         setTargetCode(data.convertedCode || "// No output");
         toast.success("Code converted successfully!");
       }
-    } catch (err: any) {
-      setTargetCode(`// Error: ${err.message}`);
-      toast.error("Failed to convert code");
+    } catch (err: unknown) {
+      const message = await getFunctionErrorMessage(err);
+      setTargetCode(`// ${message}`);
+      toast.error(message);
     } finally {
       setIsConverting(false);
     }
