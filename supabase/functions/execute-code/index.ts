@@ -159,8 +159,14 @@ serve(async (req) => {
       hasError = true;
     }
     if (result.stdout) output += result.stdout;
-    if (result.stderr) {
-      output += result.stderr;
+    // Drop harmless JVM deprecation warnings (e.g. Kotlin's -Xverify:none notice)
+    const stderr = (result.stderr || '')
+      .split('\n')
+      .filter((l: string) => !/^OpenJDK .*VM warning:/.test(l))
+      .join('\n')
+      .trim();
+    if (stderr) {
+      output += stderr;
       hasError = true;
     }
 
