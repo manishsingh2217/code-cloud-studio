@@ -122,7 +122,7 @@ serve(async (req) => {
           }
           const text = await res.text();
           lastProblem = `${res.status}: ${text.slice(0, 300)}`;
-          console.error('Judge0 error', host, lastProblem);
+          console.error('Judge0 error', host.url, lastProblem);
           if (res.status === 429 || res.status >= 500) {
             await sleep(700 * (attempt + 1));
             continue;
@@ -130,7 +130,7 @@ serve(async (req) => {
           break; // non-retryable for this host
         } catch (e) {
           lastProblem = e instanceof Error ? e.message : 'network error';
-          console.error('Judge0 request failed', host, lastProblem);
+          console.error('Judge0 request failed', host.url, lastProblem);
           await sleep(700 * (attempt + 1));
         }
       }
