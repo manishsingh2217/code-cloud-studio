@@ -159,8 +159,14 @@ serve(async (req) => {
       hasError = true;
     }
     if (result.stdout) output += result.stdout;
-    if (result.stderr) {
-      output += result.stderr;
+    // Drop harmless JVM deprecation warnings (e.g. Kotlin's -Xverify:none notice)
+    const stderr = (result.stderr || '')
+      .split('\n')
+      .filter((l: string) => !/^OpenJDK .*VM warning:/.test(l))
+      .join('\n')
+      .trim();
+    if (stderr) {
+      output += stderr;
       hasError = true;
     }
 
@@ -177,6 +183,7 @@ serve(async (req) => {
     }
 
     if (result.message) output += `\n${result.message}`;
+    output = output.replace(/[^\n]*VM warning:[^\n]*\n?/g, '');
 
     return json({
       output: output.trim() || (hasError ? 'The program failed without any output.' : 'No output'),
