@@ -183,6 +183,7 @@ serve(async (req) => {
     }
 
     if (result.message) output += `\n${result.message}`;
+    output = output.split('\n').filter((l) => !/^OpenJDK .*VM warning:/.test(l)).join('\n');
 
     return json({
       output: output.trim() || (hasError ? 'The program failed without any output.' : 'No output'),
