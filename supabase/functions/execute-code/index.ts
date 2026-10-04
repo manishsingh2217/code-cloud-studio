@@ -24,7 +24,21 @@ const languageMap: Record<string, number> = {
   kotlin: 78,      // Kotlin
 };
 
-const JUDGE0_HOSTS = ['https://ce.judge0.com'];
+const RAPIDAPI_KEY = Deno.env.get('JUDGE0_RAPIDAPI_KEY');
+
+// Free shared CE instance first; RapidAPI Judge0 CE as authenticated fallback.
+const JUDGE0_HOSTS: { url: string; headers: Record<string, string> }[] = [
+  { url: 'https://ce.judge0.com', headers: {} },
+  ...(RAPIDAPI_KEY
+    ? [{
+        url: 'https://judge0-ce.p.rapidapi.com',
+        headers: {
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+        },
+      }]
+    : []),
+];
 
 const MAX_CODE_BYTES = 200_000;
 const MAX_STDIN_BYTES = 100_000;
