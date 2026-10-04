@@ -46,13 +46,13 @@ const ATTEMPT_TIMEOUT_MS = 45_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function submitOnce(host: string, payload: unknown) {
+async function submitOnce(host: { url: string; headers: Record<string, string> }, payload: unknown) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ATTEMPT_TIMEOUT_MS);
   try {
-    return await fetch(`${host}/submissions?base64_encoded=false&wait=true`, {
+    return await fetch(`${host.url}/submissions?base64_encoded=false&wait=true`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...host.headers },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
