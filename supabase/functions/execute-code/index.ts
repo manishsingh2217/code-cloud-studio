@@ -24,7 +24,21 @@ const languageMap: Record<string, number> = {
   kotlin: 78,      // Kotlin
 };
 
-const JUDGE0_HOSTS = ['https://ce.judge0.com'];
+const RAPIDAPI_KEY = Deno.env.get('JUDGE0_RAPIDAPI_KEY');
+
+// Free shared CE instance first; RapidAPI Judge0 CE as authenticated fallback.
+const JUDGE0_HOSTS: { url: string; headers: Record<string, string> }[] = [
+  { url: 'https://ce.judge0.com', headers: {} },
+  ...(RAPIDAPI_KEY
+    ? [{
+        url: 'https://judge0-ce.p.rapidapi.com',
+        headers: {
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+        },
+      }]
+    : []),
+];
 
 const MAX_CODE_BYTES = 200_000;
 const MAX_STDIN_BYTES = 100_000;
@@ -32,13 +46,13 @@ const ATTEMPT_TIMEOUT_MS = 45_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function submitOnce(host: string, payload: unknown) {
+async function submitOnce(host: { url: string; headers: Record<string, string> }, payload: unknown) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ATTEMPT_TIMEOUT_MS);
   try {
-    return await fetch(`${host}/submissions?base64_encoded=false&wait=true`, {
+    return await fetch(`${host.url}/submissions?base64_encoded=false&wait=true`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...host.headers },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
@@ -108,7 +122,7 @@ serve(async (req) => {
           }
           const text = await res.text();
           lastProblem = `${res.status}: ${text.slice(0, 300)}`;
-          console.error('Judge0 error', host, lastProblem);
+          console.error('Judge0 error', host.url, lastProblem);
           if (res.status === 429 || res.status >= 500) {
             await sleep(700 * (attempt + 1));
             continue;
@@ -116,7 +130,7 @@ serve(async (req) => {
           break; // non-retryable for this host
         } catch (e) {
           lastProblem = e instanceof Error ? e.message : 'network error';
-          console.error('Judge0 request failed', host, lastProblem);
+          console.error('Judge0 request failed', host.url, lastProblem);
           await sleep(700 * (attempt + 1));
         }
       }
