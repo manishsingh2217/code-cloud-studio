@@ -46,11 +46,26 @@ const ATTEMPT_TIMEOUT_MS = 45_000;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+const b64e = (s: string) => {
+  const bytes = new TextEncoder().encode(s);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+};
+const b64d = (s: string) => {
+  try {
+    const bin = atob(s.replace(/\s/g, ''));
+    return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+  } catch {
+    return s;
+  }
+};
+
 async function submitOnce(host: { url: string; headers: Record<string, string> }, payload: unknown) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ATTEMPT_TIMEOUT_MS);
   try {
-    return await fetch(`${host.url}/submissions?base64_encoded=false&wait=true`, {
+    return await fetch(`${host.url}/submissions?base64_encoded=true&wait=true`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...host.headers },
       body: JSON.stringify(payload),
@@ -102,9 +117,9 @@ serve(async (req) => {
     }
 
     const payload = {
-      source_code: code,
+      source_code: b64e(code),
       language_id: languageId,
-      stdin: stdin || '',
+      stdin: b64e(stdin || ''),
     };
 
     // Try each host, retrying transient failures (rate limits / upstream errors).
@@ -149,6 +164,9 @@ serve(async (req) => {
     }
 
     const result = await response.json();
+    for (const k of ['stdout', 'stderr', 'compile_output', 'message']) {
+      if (result[k]) result[k] = b64d(result[k]);
+    }
     console.log('Judge0 result status:', result.status?.description);
 
     let output = '';
