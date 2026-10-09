@@ -14,6 +14,7 @@ import {
   Upload,
 } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,6 +55,11 @@ const EDITOR_STATE_KEY = 'editor-state';
 export default function EditorPage() {
   const { user } = useAuth();
   const { saveFile, getFolders } = useUserFiles();
+  const [searchParams] = useSearchParams();
+  const fileParam = searchParams.get('file');
+  const [editorReady, setEditorReady] = useState(false);
+  const [currentFile, setCurrentFile] = useState<{ id: string; name: string; folder_path: string } | null>(null);
+  const [loadingFile, setLoadingFile] = useState(false);
   
   // Initialize state from localStorage
   const getInitialState = () => {
@@ -96,23 +102,33 @@ export default function EditorPage() {
     localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(state));
   }, [selectedLanguage, stdin]);
 
-  // Load file from sessionStorage if coming from dashboard
+  // Load a saved file (from ?file=<id>) once the editor is mounted and the user is known
   useEffect(() => {
-    const openFile = sessionStorage.getItem('openFile');
-    if (openFile) {
-      try {
-        const file = JSON.parse(openFile);
-        const lang = languages.find(l => l.name === file.language) || languages[0];
-        setSelectedLanguage(lang);
-        codeRef.current = file.code || lang.template;
-        editorRef.current?.setValue(codeRef.current);
-        setFileName(file.name || "");
-        sessionStorage.removeItem('openFile');
-      } catch (e) {
-        console.error('Error loading file:', e);
-      }
-    }
-  }, []);
+    if (!fileParam || !editorReady || !user) return;
+    if (currentFile?.id === fileParam) return;
+    let cancelled = false;
+    setLoadingFile(true);
+    (async () => {
+      const { data, error } = await supabase
+        .from('user_files')
+        .select('id, name, language, code, folder_path')
+        .eq('id', fileParam)
+        .maybeSingle();
+      if (cancelled) return;
+      setLoadingFile(false);
+      if (error) { toast.error("Couldn't load the file. Please try again."); return; }
+      if (!data) { toast.error("File not found — it may have been deleted"); return; }
+      const lang = languages.find(l => l.name === data.language || l.id === data.language) || languages[0];
+      setSelectedLanguage(lang);
+      codeRef.current = data.code ?? "";
+      editorRef.current?.setValue(codeRef.current);
+      setCurrentFile({ id: data.id, name: data.name, folder_path: data.folder_path || '/' });
+      setFileName(data.name);
+      setFolderPath(data.folder_path || '/');
+      setOutput("");
+    })();
+    return () => { cancelled = true; };
+  }, [fileParam, editorReady, user]);
 
   // Keyboard shortcut: Cmd/Ctrl + Enter to run
   useEffect(() => {
@@ -142,6 +158,7 @@ export default function EditorPage() {
 
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
+    setEditorReady(true);
     // Re-measure character widths once the web font has actually loaded,
     // otherwise the caret drifts ahead of the typed characters.
     if (typeof document !== "undefined" && (document as any).fonts?.ready) {
@@ -211,12 +228,15 @@ export default function EditorPage() {
     setIsSaving(true);
     const fullName = fileName.includes('.') ? fileName : `${fileName}.${selectedLanguage.extension}`;
     
-    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, undefined, folderPath);
+    // Update the open file if name/folder unchanged; otherwise save as a new file
+    const isSameFile = currentFile && currentFile.name === fullName && currentFile.folder_path === folderPath;
+    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, isSameFile ? currentFile!.id : undefined, folderPath);
     
     if (result) {
-      toast.success("Code saved to cloud!");
+      toast.success(isSameFile ? "Changes saved!" : "Code saved to cloud!");
       setShowSaveDialog(false);
-      setFileName("");
+      setCurrentFile({ id: result.id, name: result.name, folder_path: result.folder_path || '/' });
+      setFileName(result.name);
     }
     setIsSaving(false);
   };
@@ -226,7 +246,7 @@ export default function EditorPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `main.${selectedLanguage.extension}`;
+    a.download = currentFile?.name || `main.${selectedLanguage.extension}`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("File downloaded!");
@@ -296,7 +316,7 @@ export default function EditorPage() {
             </DropdownMenu>
 
             <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-              main.{selectedLanguage.extension}
+              {loadingFile ? "Loading file..." : currentFile?.name || `main.${selectedLanguage.extension}`}
             </span>
           </div>
 
