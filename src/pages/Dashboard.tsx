@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import {
   ChevronRight,
+  Download,
   Clock,
   Code2,
   FileCode,
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserFiles } from "@/hooks/useUserFiles";
 import { formatDistanceToNow } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
 
 const languageColors: Record<string, string> = {
   Python: "bg-yellow-500",
@@ -136,9 +138,29 @@ export default function Dashboard() {
   };
 
   const handleOpenInEditor = (file: typeof files[0]) => {
-    // Store file data in sessionStorage to load in editor
-    sessionStorage.setItem('openFile', JSON.stringify(file));
-    navigate('/editor');
+    navigate(`/editor?file=${file.id}`);
+  };
+
+  const handleDownloadFile = async (file: typeof files[0]) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_files').select('name, code').eq('id', file.id).maybeSingle();
+      if (error) throw error;
+      if (!data) { toast.error("File not found — it may have been deleted"); return; }
+      const blob = new Blob([data.code ?? ""], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = data.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success(`Downloaded ${data.name}`);
+    } catch (e) {
+      console.error(e);
+      toast.error("Download failed. Please try again.");
+    }
   };
 
   const totalStorageMB = 100 * 1024 * 1024; // 100 MB in bytes
@@ -316,7 +338,12 @@ export default function Dashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="glass glass-hover rounded-xl p-5 group"
+                  className="glass glass-hover rounded-xl p-5 group cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Open ${file.name} in editor`}
+                  onClick={() => handleOpenInEditor(file)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleOpenInEditor(file); }}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
@@ -337,12 +364,24 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      title="Download file"
+                      aria-label={`Download ${file.name}`}
+                      onClick={() => handleDownloadFile(file)}
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-label="More actions"
+                          className="h-8 w-8 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                         >
                           <MoreVertical className="h-4 w-4" />
                         </Button>
@@ -351,6 +390,10 @@ export default function Dashboard() {
                         <DropdownMenuItem onClick={() => handleOpenInEditor(file)}>
                           <Code2 className="h-4 w-4 mr-2" />
                           Open in Editor
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDownloadFile(file)}>
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive"
@@ -366,6 +409,7 @@ export default function Dashboard() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
