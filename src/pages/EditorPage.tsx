@@ -181,6 +181,9 @@ export default function EditorPage() {
 
     setIsRunning(true);
     setOutput("Running...\n");
+    setRunTime(null);
+    const start = performance.now();
+    let ok = false;
 
     try {
       const { data, error } = await supabase.functions.invoke('execute-code', {
@@ -204,6 +207,7 @@ export default function EditorPage() {
         toast.error(data.error);
       } else {
         setOutput(data.output || "No output");
+        ok = !!data.success;
         if (data.success) {
           toast.success("Code executed successfully!");
         } else {
@@ -215,8 +219,18 @@ export default function EditorPage() {
       setOutput(message);
       toast.error(message);
     } finally {
+      setRunTime({ ms: Math.round(performance.now() - start), ok });
       setIsRunning(false);
     }
+  };
+
+  shortcutRef.current = {
+    run: () => { if (!isRunning) handleRun(); },
+    save: () => {
+      if (!user) { toast.error("Please sign in to save files"); return; }
+      if (currentFile) { if (!isSaving) handleSave(true); }
+      else setShowSaveDialog(true);
+    },
   };
 
   const clearEditorAfterSave = () => {
