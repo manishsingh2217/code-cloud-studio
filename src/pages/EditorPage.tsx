@@ -12,6 +12,11 @@ import {
   Terminal,
   Trash2,
   Upload,
+  AArrowDown,
+  AArrowUp,
+  WrapText,
+  Wand2,
+  Keyboard,
 } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -473,7 +478,7 @@ export default function EditorPage() {
                     />
                   </div>
                   <Button 
-                    onClick={handleSave} 
+                    onClick={() => handleSave()} 
                     className="w-full"
                     disabled={isSaving || !user}
                   >
@@ -523,6 +528,37 @@ export default function EditorPage() {
             <Button variant="ghost" size="icon" onClick={handleReset} title="Reset to template" className="h-8 w-8 sm:h-9 sm:w-9">
               <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
+
+            <div className="hidden md:flex items-center gap-0.5 pl-1 ml-1 border-l border-border">
+              <Button variant="ghost" size="icon" onClick={() => changeFontSize(-1)} title="Smaller font" className="h-8 w-8">
+                <AArrowDown className="h-4 w-4" />
+              </Button>
+              <span className="text-xs text-muted-foreground w-6 text-center tabular-nums">{fontSize}</span>
+              <Button variant="ghost" size="icon" onClick={() => changeFontSize(1)} title="Larger font" className="h-8 w-8">
+                <AArrowUp className="h-4 w-4" />
+              </Button>
+              <Button variant={wordWrap ? "secondary" : "ghost"} size="icon" onClick={toggleWrap} title="Toggle word wrap" className="h-8 w-8">
+                <WrapText className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleFormat} title="Format code (Shift+Alt+F)" className="h-8 w-8">
+                <Wand2 className="h-4 w-4" />
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" title="Keyboard shortcuts" className="h-8 w-8">
+                    <Keyboard className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader><DialogTitle>Keyboard shortcuts</DialogTitle></DialogHeader>
+                  <ul className="space-y-2 text-sm">
+                    {[["Run code","Ctrl / ⌘ + Enter"],["Save file","Ctrl / ⌘ + S"],["Format code","Shift + Alt + F"],["Find","Ctrl / ⌘ + F"],["Toggle comment","Ctrl / ⌘ + /"]].map(([a,k]) => (
+                      <li key={a} className="flex justify-between gap-4"><span>{a}</span><kbd className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-xs">{k}</kbd></li>
+                    ))}
+                  </ul>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
@@ -539,7 +575,7 @@ export default function EditorPage() {
                 onChange={handleEditorChange}
                 onMount={handleEditorMount}
                 options={{
-                  fontSize: 13,
+                  fontSize,
                   fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                   fontLigatures: false,
                   minimap: { enabled: false },
@@ -553,7 +589,7 @@ export default function EditorPage() {
                   cursorSmoothCaretAnimation: "off",
                   tabSize: 4,
                   insertSpaces: true,
-                  wordWrap: "on",
+                  wordWrap: wordWrap ? "on" : "off",
                   scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
                 }}
               />
@@ -583,6 +619,11 @@ export default function EditorPage() {
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
                 <div className="w-2 h-2 rounded-full bg-accent" />
                 <span className="text-xs font-medium">Output</span>
+                {runTime && !isRunning && (
+                  <span className={`ml-auto text-[11px] font-mono px-1.5 py-0.5 rounded ${runTime.ok ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
+                    ⚡ {runTime.ms} ms
+                  </span>
+                )}
               </div>
               <div className="flex-1 p-3 font-mono text-xs overflow-auto">
                 {output ? (
