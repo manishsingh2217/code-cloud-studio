@@ -169,6 +169,10 @@ export default function EditorPage() {
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
     setEditorReady(true);
+    if (monaco) {
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => shortcutRef.current.run());
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => shortcutRef.current.save());
+    }
     // Re-measure character widths once the web font has actually loaded,
     // otherwise the caret drifts ahead of the typed characters.
     if (typeof document !== "undefined" && (document as any).fonts?.ready) {
