@@ -55,7 +55,10 @@ const EDITOR_STATE_KEY = 'editor-state';
 export default function EditorPage() {
   const { user } = useAuth();
   const { saveFile, getFolders } = useUserFiles();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('editor-font-size')) || 14);
+  const [wordWrap, setWordWrap] = useState(() => localStorage.getItem('editor-word-wrap') !== 'off');
+  const [runTime, setRunTime] = useState<{ ms: number; ok: boolean } | null>(null);
   const fileParam = searchParams.get('file');
   const [editorReady, setEditorReady] = useState(false);
   const [currentFile, setCurrentFile] = useState<{ id: string; name: string; folder_path: string } | null>(null);
@@ -130,20 +133,22 @@ export default function EditorPage() {
     return () => { cancelled = true; };
   }, [fileParam, editorReady, user]);
 
-  // Keyboard shortcut: Cmd/Ctrl + Enter to run
+  // Keyboard shortcuts: Cmd/Ctrl + Enter to run, Cmd/Ctrl + S to save
+  const shortcutRef = useRef<{ run: () => void; save: () => void }>({ run: () => {}, save: () => {} });
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === 'Enter') {
         e.preventDefault();
-        if (!isRunning) {
-          handleRun();
-        }
+        shortcutRef.current.run();
+      } else if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        shortcutRef.current.save();
       }
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRunning, code, selectedLanguage, stdin]);
+  }, []);
 
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
