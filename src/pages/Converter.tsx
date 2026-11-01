@@ -1,7 +1,8 @@
 import Editor from "@monaco-editor/react";
 import { motion } from "framer-motion";
-import { ArrowLeftRight, ChevronDown, Copy, Download, Loader2 } from "lucide-react";
+import { ArrowLeftRight, ChevronDown, Copy, Download, Loader2, Play } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ const defaultCode: Record<string, string> = {
 };
 
 export default function Converter() {
+  const navigate = useNavigate();
   const [sourceLanguage, setSourceLanguage] = useState(languages[0]);
   const [targetLanguage, setTargetLanguage] = useState(languages[1]);
   const [sourceCode, setSourceCode] = useState(defaultCode.python);
@@ -232,6 +234,20 @@ export default function Converter() {
               <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 border-b border-border">
                 <span className="font-medium text-xs sm:text-sm">Target ({targetLanguage.name})</span>
                 <div className="flex gap-1 sm:gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    title="Open in Editor & Run"
+                    className="h-8 gap-1 px-2 text-xs"
+                    disabled={!targetCode || targetCode.startsWith("// Converted code will appear")}
+                    onClick={() => {
+                      localStorage.setItem("editor-state", JSON.stringify({ languageId: targetLanguage.id, code: targetCode, stdin: "" }));
+                      navigate("/editor");
+                    }}
+                  >
+                    <Play className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Open in Editor</span>
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => handleCopy(targetCode)} className="h-8 w-8">
                     <Copy className="h-3 w-3 sm:h-4 sm:w-4" />
                   </Button>
