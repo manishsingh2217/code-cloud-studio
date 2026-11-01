@@ -214,31 +214,74 @@ export default function EditorPage() {
     }
   };
 
-  const handleSave = async () => {
+  const clearEditorAfterSave = () => {
+    codeRef.current = selectedLanguage.template;
+    editorRef.current?.setValue(selectedLanguage.template);
+    setCurrentFile(null);
+    setFileName("");
+    setFolderPath("/");
+    setOutput("");
+    setStdin("");
+    setRunTime(null);
+    if (searchParams.get('file')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('file');
+      setSearchParams(next, { replace: true });
+    }
+    localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify({ languageId: selectedLanguage.id, code: selectedLanguage.template, stdin: "" }));
+  };
+
+  const handleSave = async (quick = false) => {
     if (!user) {
       toast.error("Please sign in to save files");
       return;
     }
-    
-    if (!fileName.trim()) {
+
+    const nameToUse = quick && currentFile ? currentFile.name : fileName;
+    const folderToUse = quick && currentFile ? currentFile.folder_path : folderPath;
+    if (!nameToUse.trim()) {
       toast.error("Please enter a file name");
       return;
     }
 
     setIsSaving(true);
-    const fullName = fileName.includes('.') ? fileName : `${fileName}.${selectedLanguage.extension}`;
+    const fullName = nameToUse.includes('.') ? nameToUse : `${nameToUse}.${selectedLanguage.extension}`;
     
     // Update the open file if name/folder unchanged; otherwise save as a new file
-    const isSameFile = currentFile && currentFile.name === fullName && currentFile.folder_path === folderPath;
-    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, isSameFile ? currentFile!.id : undefined, folderPath);
+    const isSameFile = !!currentFile && currentFile.name === fullName && currentFile.folder_path === folderToUse;
+    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, isSameFile ? currentFile!.id : undefined, folderToUse);
     
     if (result) {
-      toast.success(isSameFile ? "Changes saved!" : "Code saved to cloud!");
       setShowSaveDialog(false);
-      setCurrentFile({ id: result.id, name: result.name, folder_path: result.folder_path || '/' });
-      setFileName(result.name);
+      if (isSameFile) {
+        toast.success("Changes saved! Editor cleared — open the file anytime from your Dashboard.");
+        clearEditorAfterSave();
+      } else {
+        toast.success("Code saved to cloud!");
+        setCurrentFile({ id: result.id, name: result.name, folder_path: result.folder_path || '/' });
+        setFileName(result.name);
+      }
     }
     setIsSaving(false);
+  };
+
+  const handleFormat = () => {
+    editorRef.current?.getAction?.('editor.action.formatDocument')?.run();
+  };
+
+  const changeFontSize = (delta: number) => {
+    setFontSize((s) => {
+      const n = Math.min(20, Math.max(12, s + delta));
+      localStorage.setItem('editor-font-size', String(n));
+      return n;
+    });
+  };
+
+  const toggleWrap = () => {
+    setWordWrap((w) => {
+      localStorage.setItem('editor-word-wrap', w ? 'off' : 'on');
+      return !w;
+    });
   };
 
   const handleDownload = () => {
