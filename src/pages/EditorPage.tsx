@@ -12,6 +12,11 @@ import {
   Terminal,
   Trash2,
   Upload,
+  AArrowDown,
+  AArrowUp,
+  WrapText,
+  Wand2,
+  Keyboard,
 } from "lucide-react";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -55,7 +60,10 @@ const EDITOR_STATE_KEY = 'editor-state';
 export default function EditorPage() {
   const { user } = useAuth();
   const { saveFile, getFolders } = useUserFiles();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [fontSize, setFontSize] = useState(() => Number(localStorage.getItem('editor-font-size')) || 14);
+  const [wordWrap, setWordWrap] = useState(() => localStorage.getItem('editor-word-wrap') !== 'off');
+  const [runTime, setRunTime] = useState<{ ms: number; ok: boolean } | null>(null);
   const fileParam = searchParams.get('file');
   const [editorReady, setEditorReady] = useState(false);
   const [currentFile, setCurrentFile] = useState<{ id: string; name: string; folder_path: string } | null>(null);
@@ -130,20 +138,22 @@ export default function EditorPage() {
     return () => { cancelled = true; };
   }, [fileParam, editorReady, user]);
 
-  // Keyboard shortcut: Cmd/Ctrl + Enter to run
+  // Keyboard shortcuts: Cmd/Ctrl + Enter to run, Cmd/Ctrl + S to save
+  const shortcutRef = useRef<{ run: () => void; save: () => void }>({ run: () => {}, save: () => {} });
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      if (!(e.metaKey || e.ctrlKey)) return;
+      if (e.key === 'Enter') {
         e.preventDefault();
-        if (!isRunning) {
-          handleRun();
-        }
+        shortcutRef.current.run();
+      } else if (e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        shortcutRef.current.save();
       }
     };
-    
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isRunning, code, selectedLanguage, stdin]);
+  }, []);
 
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setSelectedLanguage(lang);
@@ -159,6 +169,10 @@ export default function EditorPage() {
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
     setEditorReady(true);
+    if (monaco) {
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => shortcutRef.current.run());
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => shortcutRef.current.save());
+    }
     // Re-measure character widths once the web font has actually loaded,
     // otherwise the caret drifts ahead of the typed characters.
     if (typeof document !== "undefined" && (document as any).fonts?.ready) {
@@ -176,6 +190,9 @@ export default function EditorPage() {
 
     setIsRunning(true);
     setOutput("Running...\n");
+    setRunTime(null);
+    const start = performance.now();
+    let ok = false;
 
     try {
       const { data, error } = await supabase.functions.invoke('execute-code', {
@@ -199,6 +216,7 @@ export default function EditorPage() {
         toast.error(data.error);
       } else {
         setOutput(data.output || "No output");
+        ok = !!data.success;
         if (data.success) {
           toast.success("Code executed successfully!");
         } else {
@@ -210,35 +228,88 @@ export default function EditorPage() {
       setOutput(message);
       toast.error(message);
     } finally {
+      setRunTime({ ms: Math.round(performance.now() - start), ok });
       setIsRunning(false);
     }
   };
 
-  const handleSave = async () => {
+  shortcutRef.current = {
+    run: () => { if (!isRunning) handleRun(); },
+    save: () => {
+      if (!user) { toast.error("Please sign in to save files"); return; }
+      if (currentFile) { if (!isSaving) handleSave(true); }
+      else setShowSaveDialog(true);
+    },
+  };
+
+  const clearEditorAfterSave = () => {
+    codeRef.current = selectedLanguage.template;
+    editorRef.current?.setValue(selectedLanguage.template);
+    setCurrentFile(null);
+    setFileName("");
+    setFolderPath("/");
+    setOutput("");
+    setStdin("");
+    setRunTime(null);
+    if (searchParams.get('file')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('file');
+      setSearchParams(next, { replace: true });
+    }
+    localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify({ languageId: selectedLanguage.id, code: selectedLanguage.template, stdin: "" }));
+  };
+
+  const handleSave = async (quick = false) => {
     if (!user) {
       toast.error("Please sign in to save files");
       return;
     }
-    
-    if (!fileName.trim()) {
+
+    const nameToUse = quick && currentFile ? currentFile.name : fileName;
+    const folderToUse = quick && currentFile ? currentFile.folder_path : folderPath;
+    if (!nameToUse.trim()) {
       toast.error("Please enter a file name");
       return;
     }
 
     setIsSaving(true);
-    const fullName = fileName.includes('.') ? fileName : `${fileName}.${selectedLanguage.extension}`;
+    const fullName = nameToUse.includes('.') ? nameToUse : `${nameToUse}.${selectedLanguage.extension}`;
     
     // Update the open file if name/folder unchanged; otherwise save as a new file
-    const isSameFile = currentFile && currentFile.name === fullName && currentFile.folder_path === folderPath;
-    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, isSameFile ? currentFile!.id : undefined, folderPath);
+    const isSameFile = !!currentFile && currentFile.name === fullName && currentFile.folder_path === folderToUse;
+    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, isSameFile ? currentFile!.id : undefined, folderToUse);
     
     if (result) {
-      toast.success(isSameFile ? "Changes saved!" : "Code saved to cloud!");
       setShowSaveDialog(false);
-      setCurrentFile({ id: result.id, name: result.name, folder_path: result.folder_path || '/' });
-      setFileName(result.name);
+      if (isSameFile) {
+        toast.success("Changes saved! Editor cleared — open the file anytime from your Dashboard.");
+        clearEditorAfterSave();
+      } else {
+        toast.success("Code saved to cloud!");
+        setCurrentFile({ id: result.id, name: result.name, folder_path: result.folder_path || '/' });
+        setFileName(result.name);
+      }
     }
     setIsSaving(false);
+  };
+
+  const handleFormat = () => {
+    editorRef.current?.getAction?.('editor.action.formatDocument')?.run();
+  };
+
+  const changeFontSize = (delta: number) => {
+    setFontSize((s) => {
+      const n = Math.min(20, Math.max(12, s + delta));
+      localStorage.setItem('editor-font-size', String(n));
+      return n;
+    });
+  };
+
+  const toggleWrap = () => {
+    setWordWrap((w) => {
+      localStorage.setItem('editor-word-wrap', w ? 'off' : 'on');
+      return !w;
+    });
   };
 
   const handleDownload = () => {
@@ -411,7 +482,7 @@ export default function EditorPage() {
                     />
                   </div>
                   <Button 
-                    onClick={handleSave} 
+                    onClick={() => handleSave()} 
                     className="w-full"
                     disabled={isSaving || !user}
                   >
@@ -461,6 +532,37 @@ export default function EditorPage() {
             <Button variant="ghost" size="icon" onClick={handleReset} title="Reset to template" className="h-8 w-8 sm:h-9 sm:w-9">
               <RotateCcw className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
+
+            <div className="hidden md:flex items-center gap-0.5 pl-1 ml-1 border-l border-border">
+              <Button variant="ghost" size="icon" onClick={() => changeFontSize(-1)} title="Smaller font" className="h-8 w-8">
+                <AArrowDown className="h-4 w-4" />
+              </Button>
+              <span className="text-xs text-muted-foreground w-6 text-center tabular-nums">{fontSize}</span>
+              <Button variant="ghost" size="icon" onClick={() => changeFontSize(1)} title="Larger font" className="h-8 w-8">
+                <AArrowUp className="h-4 w-4" />
+              </Button>
+              <Button variant={wordWrap ? "secondary" : "ghost"} size="icon" onClick={toggleWrap} title="Toggle word wrap" className="h-8 w-8">
+                <WrapText className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleFormat} title="Format code (Shift+Alt+F)" className="h-8 w-8">
+                <Wand2 className="h-4 w-4" />
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" title="Keyboard shortcuts" className="h-8 w-8">
+                    <Keyboard className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-sm">
+                  <DialogHeader><DialogTitle>Keyboard shortcuts</DialogTitle></DialogHeader>
+                  <ul className="space-y-2 text-sm">
+                    {[["Run code","Ctrl / ⌘ + Enter"],["Save file","Ctrl / ⌘ + S"],["Format code","Shift + Alt + F"],["Find","Ctrl / ⌘ + F"],["Toggle comment","Ctrl / ⌘ + /"]].map(([a,k]) => (
+                      <li key={a} className="flex justify-between gap-4"><span>{a}</span><kbd className="rounded border border-border bg-muted px-2 py-0.5 font-mono text-xs">{k}</kbd></li>
+                    ))}
+                  </ul>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
@@ -477,7 +579,7 @@ export default function EditorPage() {
                 onChange={handleEditorChange}
                 onMount={handleEditorMount}
                 options={{
-                  fontSize: 13,
+                  fontSize,
                   fontFamily: "'JetBrains Mono', Menlo, Monaco, 'Courier New', monospace",
                   fontLigatures: false,
                   minimap: { enabled: false },
@@ -491,7 +593,7 @@ export default function EditorPage() {
                   cursorSmoothCaretAnimation: "off",
                   tabSize: 4,
                   insertSpaces: true,
-                  wordWrap: "on",
+                  wordWrap: wordWrap ? "on" : "off",
                   scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
                 }}
               />
@@ -521,6 +623,11 @@ export default function EditorPage() {
               <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
                 <div className="w-2 h-2 rounded-full bg-accent" />
                 <span className="text-xs font-medium">Output</span>
+                {runTime && !isRunning && (
+                  <span className={`ml-auto text-[11px] font-mono px-1.5 py-0.5 rounded ${runTime.ok ? "bg-primary/15 text-primary" : "bg-destructive/15 text-destructive"}`}>
+                    ⚡ {runTime.ms} ms
+                  </span>
+                )}
               </div>
               <div className="flex-1 p-3 font-mono text-xs overflow-auto">
                 {output ? (
