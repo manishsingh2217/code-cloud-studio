@@ -121,11 +121,11 @@
 
 @layer components {
   .glass {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+    @apply bg-card border border-border;
   }
 
   .glass-hover {
-    @apply hover:bg-card/90 hover:border-primary/30 transition-all duration-300;
+    @apply hover:border-primary/40 transition-colors duration-200;
   }
 
   .gradient-text {
