@@ -66,6 +66,7 @@ export default function EditorPage() {
   const [runTime, setRunTime] = useState<{ ms: number; ok: boolean } | null>(null);
   const fileParam = searchParams.get('file');
   const [editorReady, setEditorReady] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
   const [currentFile, setCurrentFile] = useState<{ id: string; name: string; folder_path: string } | null>(null);
   const [loadingFile, setLoadingFile] = useState(false);
   
@@ -169,6 +170,9 @@ export default function EditorPage() {
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
     setEditorReady(true);
+    editor.onDidChangeCursorPosition?.((e: any) => {
+      setCursorPos({ line: e.position.lineNumber, col: e.position.column });
+    });
     if (monaco) {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => shortcutRef.current.run());
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => shortcutRef.current.save());
@@ -570,7 +574,7 @@ export default function EditorPage() {
         <div className="flex flex-col lg:flex-row gap-3">
           {/* Editor */}
           <div className="flex-1 min-w-0 rounded-xl border border-border overflow-hidden bg-card/50">
-            <div className="h-[45vh] min-h-[280px] max-h-[560px] lg:max-h-none lg:h-[calc(100vh-13rem)]">
+            <div className="h-[45vh] min-h-[280px] max-h-[560px] lg:max-h-none lg:h-[calc(100vh-15rem)]">
               <Editor
                 height="100%"
                 language={selectedLanguage.id}
@@ -597,6 +601,23 @@ export default function EditorPage() {
                   scrollbar: { verticalScrollbarSize: 8, horizontalScrollbarSize: 8 },
                 }}
               />
+            </div>
+            {/* IDE status bar */}
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 px-3 py-1.5 border-t border-border bg-card font-mono text-[11px] text-muted-foreground">
+              <div className="flex items-center gap-3">
+                <span className="tabular-nums">Ln {cursorPos.line}, Col {cursorPos.col}</span>
+                <span className="hidden sm:inline">{currentFile?.name || `main.${selectedLanguage.extension}`}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span>{selectedLanguage.name}</span>
+                <span className="hidden sm:inline">Spaces: 4</span>
+                <span>UTF-8</span>
+                {runTime && !isRunning && (
+                  <span className={runTime.ok ? "text-primary" : "text-destructive"}>
+                    {runTime.ok ? "✓" : "✗"} {runTime.ms} ms
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

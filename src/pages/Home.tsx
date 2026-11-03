@@ -1,70 +1,67 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Code2,
-  Cpu,
-  FileCode2,
-  GitBranch,
-  Image,
-  Layers,
-  Play,
-  Star,
-  Zap,
-} from "lucide-react";
+import { ArrowRight, Code2, FileCode2, FolderTree, Github, Keyboard, Repeat2, TerminalSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { HeroPlayground } from "@/components/HeroPlayground";
 import { usePublicProjects } from "@/hooks/useProjects";
 
 const features = [
   {
-    icon: Code2,
-    title: "Multi-Language Support",
+    icon: TerminalSquare,
+    title: "8 languages, real execution",
     description:
-      "Write and execute code in C, C++, Java, Python, JavaScript, Go, Rust, and Kotlin.",
+      "C, C++, Java, Kotlin, JavaScript, Python, Go and Rust run on an isolated sandbox. You get stdout, stderr, exit codes and wall-clock time — not a mock.",
   },
   {
-    icon: Play,
-    title: "Instant Execution",
+    icon: Keyboard,
+    title: "Keyboard-first workflow",
     description:
-      "Run your code instantly in a secure sandbox environment with real-time output.",
+      "Ctrl+Enter compiles and runs the active file. Ctrl+S saves it to the cloud. No dialogs, no mouse required.",
   },
   {
-    icon: Layers,
-    title: "Code Conversion",
+    icon: FolderTree,
+    title: "Cloud workspace",
     description:
-      "Convert code between languages seamlessly with our AI-powered converter.",
+      "Organize code into folders, save files up to 10 MB each, 100 MB per account. Files reopen in the editor exactly as you left them.",
   },
   {
-    icon: GitBranch,
-    title: "GitHub Integration",
+    icon: Repeat2,
+    title: "Cross-language converter",
     description:
-      "Push your code directly to GitHub repositories with commit support.",
+      "Translate a working program from Python to Rust, C to Go, or any supported pair — then run the result immediately in the editor.",
   },
   {
-    icon: Cpu,
-    title: "Cloud Storage",
+    icon: Github,
+    title: "GitHub push",
     description:
-      "Save your projects to the cloud with 100MB free storage per user.",
+      "Link your account and push files to a repository with commit messages, straight from the editor.",
   },
   {
     icon: FileCode2,
-    title: "Rich Documentation",
+    title: "One-click export",
     description:
-      "Access comprehensive documentation for all supported languages.",
+      "Download any open or saved file with its original name and extension. Works on mobile too.",
   },
 ];
 
 const languages = [
-  { name: "Python", color: "bg-yellow-500" },
-  { name: "JavaScript", color: "bg-amber-400" },
-  { name: "Java", color: "bg-red-500" },
-  { name: "C++", color: "bg-blue-500" },
-  { name: "Go", color: "bg-cyan-500" },
-  { name: "Rust", color: "bg-orange-500" },
-  { name: "Kotlin", color: "bg-purple-500" },
-  { name: "C", color: "bg-gray-500" },
+  "Python",
+  "JavaScript",
+  "Java",
+  "C++",
+  "Go",
+  "Rust",
+  "Kotlin",
+  "C",
 ];
+
+const fadeUp = {
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.5 },
+};
 
 export default function Home() {
   const { data: projects = [] } = usePublicProjects();
@@ -76,193 +73,128 @@ export default function Home() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center py-12 sm:py-20 px-4">
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-50" />
-        <div className="absolute top-1/4 left-1/4 w-48 sm:w-96 h-48 sm:h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-40 sm:w-80 h-40 sm:h-80 bg-accent/10 rounded-full blur-3xl animate-pulse-glow animation-delay-1000" />
-
+      {/* Hero */}
+      <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-16 px-4">
         <div className="container relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
+            transition={{ duration: 0.5 }}
+            className="max-w-3xl mx-auto text-left"
           >
-            {/* Badge */}
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
-            >
-              <Zap className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">
-                Cloud-based coding for everyone
-              </span>
-            </motion.div>
-
-            {/* Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight">
-              Code anywhere.
-              <br />
-              <span className="gradient-text">Build everything.</span>
-            </h1>
-
-            {/* Subheadline */}
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-10 max-w-2xl mx-auto px-2">
-              A powerful cloud IDE with instant execution, multi-language
-              support, and seamless GitHub integration. Start coding in seconds.
+            <p className="font-mono text-xs sm:text-sm text-muted-foreground mb-4">
+              <span className="text-primary">$</span> cloudcode --run --lang=python,cpp,rust,go,java,kotlin,js,c
             </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-16 px-4">
-              <Link to="/editor" className="w-full sm:w-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-5">
+              A browser IDE that actually runs your code.
+            </h1>
+            <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl">
+              No install, no signup wall. Write in 8 languages, execute on a
+              real sandbox with stdin and exit codes, save to your workspace,
+              and push to GitHub — from any device.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
+              <Link to="/editor">
                 <Button variant="hero" size="xl" className="group w-full sm:w-auto">
-                  Start Coding
+                  Open the editor
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link to="/docs" className="w-full sm:w-auto">
+              <Link to="/docs">
                 <Button variant="glass" size="xl" className="w-full sm:w-auto">
-                  View Documentation
+                  Read the docs
                 </Button>
               </Link>
             </div>
-
-            {/* Language Pills */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap justify-center gap-3"
-            >
-              {languages.map((lang, i) => (
-                <motion.div
-                  key={lang.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6 + i * 0.1 }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full glass hover:scale-105 transition-transform cursor-default"
-                >
-                  <div className={`w-3 h-3 rounded-full ${lang.color}`} />
-                  <span className="text-sm font-medium">{lang.name}</span>
-                </motion.div>
-              ))}
-            </motion.div>
+            <p className="font-mono text-xs text-muted-foreground">
+              free · no credit card · <Link to="/editor" className="text-primary underline underline-offset-2">run without an account</Link>
+            </p>
           </motion.div>
 
-          {/* Code Preview */}
+          {/* Live playground */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-            className="mt-10 sm:mt-20 max-w-4xl mx-auto"
+            transition={{ delay: 0.15, duration: 0.6 }}
+            className="mt-10 sm:mt-14 max-w-4xl mx-auto"
           >
-            <div className="glass rounded-2xl overflow-hidden shadow-2xl">
-              {/* Editor Header */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-card/50">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-destructive/80" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                  <div className="w-3 h-3 rounded-full bg-accent/80" />
-                </div>
-                <span className="ml-4 text-sm text-muted-foreground font-mono">
-                  main.py
-                </span>
-              </div>
-              {/* Code Content */}
-              <div className="p-4 sm:p-6 font-mono text-xs sm:text-sm bg-code-bg overflow-x-auto">
-                <pre className="text-foreground">
-                  <code>
-                    <span className="text-purple-500">def</span>{" "}
-                    <span className="text-primary">hello_cloud</span>():
-                    {"\n"}
-                    {"    "}
-                    <span className="text-muted-foreground"># Welcome to CloudCode</span>
-                    {"\n"}
-                    {"    "}message = <span className="text-accent">"Hello, World!"</span>
-                    {"\n"}
-                    {"    "}
-                    <span className="text-purple-500">print</span>(message)
-                    {"\n"}
-                    {"\n"}
-                    hello_cloud()
-                  </code>
-                </pre>
-              </div>
-              {/* Output */}
-              <div className="px-6 py-4 border-t border-border/50 bg-card/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <Play className="h-4 w-4 text-accent" />
-                  <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                    Output
+            <div className="flex items-center justify-between mb-2 px-1">
+              <span className="font-mono text-xs text-muted-foreground">
+                live — edit and run right here
+              </span>
+              <div className="hidden sm:flex items-center gap-2 font-mono text-xs text-muted-foreground">
+                {languages.slice(0, 4).map((l) => (
+                  <span key={l} className="px-2 py-0.5 rounded border border-border bg-card">
+                    {l}
                   </span>
-                </div>
-                <code className="text-sm text-accent font-mono">
-                  Hello, World!
-                </code>
+                ))}
+                <span>+4</span>
               </div>
             </div>
+            <HeroPlayground />
           </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-12 sm:py-24 px-4">
+      {/* Languages strip */}
+      <section className="border-y border-border bg-card/40 py-5 px-4">
+        <div className="container flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground mr-2">
+            supported
+          </span>
+          {languages.map((l) => (
+            <span key={l} className="font-mono text-sm text-foreground/80">
+              {l}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Features */}
+      <section className="py-14 sm:py-24 px-4">
         <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-16"
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-              Everything you need to code
+          <motion.div {...fadeUp} className="mb-10 sm:mb-16">
+            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">
+              01 // capabilities
+            </p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+              Built like a tool, not a demo
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto px-2">
-              Powerful features designed for developers of all skill levels
+            <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mt-3">
+              Every feature here is wired to a real backend — execution, storage, conversion and Git included.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-border border border-border rounded-lg overflow-hidden">
             {features.map((feature, i) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group p-6 rounded-2xl glass glass-hover"
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: (i % 3) * 0.06 }}
+                className="bg-card p-6 hover:bg-muted/20 transition-colors"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <feature.icon className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
+                <feature.icon className="h-5 w-5 text-primary mb-4" strokeWidth={1.75} />
+                <h3 className="text-base font-semibold mb-2">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Projects Section */}
+      {/* Projects */}
       {projects.length > 0 && (
-        <section className="py-12 sm:py-24 px-4">
+        <section className="py-14 sm:py-24 px-4 border-t border-border">
           <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-8 sm:mb-16"
-            >
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
-                Our Projects
-              </h2>
-              <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto">
-                Check out what we've been building
+            <motion.div {...fadeUp} className="mb-10 sm:mb-16">
+              <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">
+                02 // built with cloudcode
               </p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+                Projects from the community
+              </h2>
             </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -272,34 +204,35 @@ export default function Home() {
                   href={project.project_url || '#'}
                   target={project.project_url ? '_blank' : undefined}
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group rounded-2xl glass glass-hover overflow-hidden block"
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ delay: (i % 3) * 0.06 }}
+                  className="group rounded-lg border border-border bg-card overflow-hidden block hover:border-primary/40 transition-colors"
                 >
-                  {/* Thumbnail */}
-                  <div className="w-full h-48 bg-muted/30 overflow-hidden">
+                  <div className="w-full h-44 bg-muted/30 overflow-hidden border-b border-border">
                     {project.thumbnail_url && !failedImages.has(project.id) ? (
                       <img
                         src={project.thumbnail_url}
                         alt={project.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover"
                         onError={() => handleImageError(project.id)}
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full text-muted-foreground">
-                        <Image className="h-10 w-10" />
+                      <div className="flex items-center justify-center h-full text-muted-foreground font-mono text-xs">
+                        no preview
                       </div>
                     )}
                   </div>
                   <div className="p-5">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold">{project.name}</h3>
-                      {project.is_featured && <Star className="h-4 w-4 text-primary fill-primary" />}
-                    </div>
+                    <h3 className="text-base font-semibold">{project.name}</h3>
                     {project.description && (
-                      <p className="text-muted-foreground text-sm mt-2 line-clamp-2">{project.description}</p>
+                      <p className="text-muted-foreground text-sm mt-1.5 line-clamp-2">{project.description}</p>
+                    )}
+                    {project.project_url && (
+                      <span className="inline-flex items-center gap-1 mt-3 font-mono text-xs text-primary">
+                        visit →
+                      </span>
                     )}
                   </div>
                 </motion.a>
@@ -309,51 +242,45 @@ export default function Home() {
         </section>
       )}
 
-      {/* CTA Section */}
-      <section className="py-12 sm:py-24 px-4">
+      {/* CTA */}
+      <section className="py-14 sm:py-24 px-4 border-t border-border">
         <div className="container">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="relative rounded-2xl sm:rounded-3xl overflow-hidden"
-          >
-            <div className="absolute inset-0 gradient-bg opacity-10" />
-            <div className="relative glass p-6 sm:p-12 md:p-20 text-center">
-              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 sm:mb-6">
-                Ready to start coding?
-              </h2>
-              <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-10 max-w-xl mx-auto px-2">
-                Join thousands of developers building with CloudCode. Free to
-                start, powerful enough to scale.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Link to="/auth?mode=signup" className="w-full sm:w-auto">
-                  <Button variant="hero" size="xl" className="w-full sm:w-auto">
-                    Create Free Account
-                  </Button>
-                </Link>
-                <Link to="/editor" className="w-full sm:w-auto">
-                  <Button variant="glass" size="xl" className="w-full sm:w-auto">
-                    Try Without Account
-                  </Button>
-                </Link>
-              </div>
+          <motion.div {...fadeUp} className="max-w-2xl">
+            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">
+              03 // get started
+            </p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-4">
+              Your first program is 10 seconds away
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground mb-8">
+              Open the editor and hit Ctrl+Enter. Create a free account only when you want to save your work.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link to="/editor">
+                <Button variant="hero" size="xl" className="w-full sm:w-auto">
+                  Start coding
+                </Button>
+              </Link>
+              <Link to="/auth?mode=signup">
+                <Button variant="glass" size="xl" className="w-full sm:w-auto">
+                  Create free account
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 sm:py-12 px-4 border-t border-border/50">
+      <footer className="py-8 px-4 border-t border-border">
         <div className="container">
-          <div className="flex flex-col items-center gap-3 sm:gap-4 text-center md:flex-row md:justify-between md:text-left">
+          <div className="flex flex-col items-center gap-2 text-center md:flex-row md:justify-between md:text-left">
             <div className="flex items-center gap-2">
-              <Code2 className="h-5 sm:h-6 w-5 sm:w-6 text-primary" />
-              <span className="font-bold gradient-text">CloudCode</span>
+              <Code2 className="h-5 w-5 text-primary" />
+              <span className="font-bold">CloudCode</span>
             </div>
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              © 2024 CloudCode. Built for developers, by developers.
+            <p className="text-xs text-muted-foreground font-mono">
+              © 2026 CloudCode · sandboxed execution · 8 languages
             </p>
           </div>
         </div>
