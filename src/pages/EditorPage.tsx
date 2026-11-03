@@ -66,6 +66,7 @@ export default function EditorPage() {
   const [runTime, setRunTime] = useState<{ ms: number; ok: boolean } | null>(null);
   const fileParam = searchParams.get('file');
   const [editorReady, setEditorReady] = useState(false);
+  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
   const [currentFile, setCurrentFile] = useState<{ id: string; name: string; folder_path: string } | null>(null);
   const [loadingFile, setLoadingFile] = useState(false);
   
