@@ -170,6 +170,9 @@ export default function EditorPage() {
   const handleEditorMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
     setEditorReady(true);
+    editor.onDidChangeCursorPosition?.((e: any) => {
+      setCursorPos({ line: e.position.lineNumber, col: e.position.column });
+    });
     if (monaco) {
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => shortcutRef.current.run());
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => shortcutRef.current.save());
