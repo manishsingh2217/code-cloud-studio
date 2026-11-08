@@ -281,18 +281,15 @@ export default function EditorPage() {
     
     // Update the open file if name/folder unchanged; otherwise save as a new file
     const isSameFile = !!currentFile && currentFile.name === fullName && currentFile.folder_path === folderToUse;
-    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, isSameFile ? currentFile!.id : undefined, folderToUse);
+    const existingId = isSameFile && currentFile ? currentFile.id : undefined;
+    const result = await saveFile(fullName, selectedLanguage.name, codeRef.current, existingId, folderToUse);
     
     if (result) {
       setShowSaveDialog(false);
-      if (isSameFile) {
-        toast.success("Changes saved! Editor cleared — open the file anytime from your Dashboard.");
-        clearEditorAfterSave();
-      } else {
-        toast.success("Code saved to cloud!");
-        setCurrentFile({ id: result.id, name: result.name, folder_path: result.folder_path || '/' });
-        setFileName(result.name);
-      }
+      toast.success(isSameFile
+        ? "Changes saved! Editor cleared — open the file anytime from your Dashboard."
+        : "Code saved! Editor reset — open the file anytime from your Dashboard.");
+      clearEditorAfterSave();
     }
     setIsSaving(false);
   };

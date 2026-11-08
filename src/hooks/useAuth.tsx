@@ -57,6 +57,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
     });
+    if (!error) {
+      try {
+        localStorage.removeItem('editor-state');
+      } catch {
+        // Authentication should still succeed if browser storage is unavailable.
+      }
+    }
     return { error };
   };
 
